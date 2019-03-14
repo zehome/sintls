@@ -1,0 +1,13 @@
+[Unit]
+Description=sintls
+
+[Service]
+User=sintls
+Group=sintls
+Type=simple
+Restart=always
+RestartSec=5s
+ExecStart=/home/sintls/server -userconfig /home/sintls/.config/sintls.cfg -db 'host=/var/run/postgresql user=sintls dbname=sintls' -logfile /home/sintls/sintls.log 
+
+[Install]
+WantedBy=multi-user.target
