@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
 	"golang.org/x/crypto/bcrypt"
+	"github.com/go-acme/lego/challenge"
 	"log"
 	"net/http"
 )
@@ -21,6 +22,13 @@ func LegoPresent(c *gin.Context) {
 		c.String(http.StatusBadRequest, "bad request:", err.Error())
 		return
 	}
+	provider := c.MustGet("dnsprovider").(challenge.Provider)
+	err := provider.Present(req.Domain, req.Token, req.KeyAuth)
+	if err != nil {
+		log.Print(err)
+		c.String(http.StatusInternalServerError, "lego Present failed")
+		return
+	}
 	c.String(http.StatusOK, "success")
 }
 
@@ -28,6 +36,13 @@ func LegoCleanup(c *gin.Context) {
 	var req LegoMessage
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.String(http.StatusBadRequest, "bad request:", err.Error())
+		return
+	}
+	provider := c.MustGet("dnsprovider").(challenge.Provider)
+	err := provider.CleanUp(req.Domain, req.Token, req.KeyAuth)
+	if err != nil {
+		log.Print(err)
+		c.String(http.StatusInternalServerError, "lego Cleanup failed")
 		return
 	}
 	c.String(http.StatusOK, "success")

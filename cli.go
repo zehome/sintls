@@ -30,13 +30,18 @@ var adduserQs = []*survey.Question{
 	{
 		Name: "name",
 		Prompt: &survey.Input{
-			Message: "What is your name?",
+			Message: "Username:",
 		},
 		Validate: survey.Required,
 	},
 	{
+		Name:      "subdomain",
+		Prompt:    &survey.Input{Message: "Subdomain:"},
+		Validate:  survey.Required,
+	},
+	{
 		Name:      "password",
-		Prompt:    &survey.Password{Message: "Password"},
+		Prompt:    &survey.Password{Message: "Password:"},
 		Validate:  survey.Required,
 		Transform: TransformBcrypt,
 	},
@@ -60,9 +65,10 @@ func RunCLI(db *pg.DB, args []string) {
 		fmt.Println("commands: help, adduser, list [authorization,subdomain,host]")
 	} else if CheckArg(args[0], "a") {
 		adduser_anwsers := struct {
-			Name     string
-			Password string
-			Admin    bool
+			Name     	string
+			Password 	string
+			Subdomain 	string
+			Admin    	bool
 		}{}
 		// ask the question
 		err := survey.Ask(adduserQs, &adduser_anwsers)
@@ -70,13 +76,22 @@ func RunCLI(db *pg.DB, args []string) {
 			fmt.Println(err.Error())
 			return
 		}
-		err = db.Insert(&sintls.Authorization{
+		authorization := sintls.Authorization{
 			Name:   adduser_anwsers.Name,
 			Secret: adduser_anwsers.Password,
 			Admin:  sql.NullBool{Valid: true, Bool: adduser_anwsers.Admin},
+		}
+		_, err = db.Model(&authorization).Returning("*").Insert()
+		if err != nil {
+			log.Fatal("INSERT authorization failed: ", err)
+			return
+		}
+		err = db.Insert(&sintls.SubDomain{
+			Name:				adduser_anwsers.Subdomain,
+			AuthorizationId:	authorization.AuthorizationId,
 		})
 		if err != nil {
-			log.Fatal("INSERT failed: ", err)
+			log.Fatal("INSERT SubDomain failed: ", err)
 			return
 		}
 	} else if CheckArg(args[0], "l") {

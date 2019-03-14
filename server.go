@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg"
+	"github.com/go-acme/lego/providers/dns"
 	"io"
 	"log"
 	"net/http"
@@ -23,6 +24,7 @@ func main() {
 	dbname := flag.String("dbname", os.Getenv("USER"), "postgresql dbname")
 	dbhost := flag.String("dbhost", "/var/run/postgresql", "postgresql host")
 	dbport := flag.Int("dbport", 5432, "postgresql port")
+	providername := flag.String("provider", os.Getenv("PROVIDER"), "lego DNS provider name")
 	logfile := flag.String(
 		"logfile", path.Join(os.Getenv("HOME"), "sintls.log"),
 		"sintls log")
@@ -80,12 +82,22 @@ func main() {
 		log.SetOutput(f)
 	}
 
+	// get lego acme provider
+	provider, err := dns.NewDNSChallengeProviderByName(*providername)
+	if err != nil {
+		log.Fatal("invalid lego provider: ", err)
+		return
+	}
+
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 
-	dbuse := r.Group("/", func(c *gin.Context) { c.Set("database", db) })
+	dbuse := r.Group("/", func(c *gin.Context) {
+		c.Set("database", db)
+		c.Set("dnsprovider", provider)
+	})
 
 	authorized := dbuse.Group("/", sintls.BasicAuth(db, false))
 	authorized.POST("/present", sintls.LegoPresent)
