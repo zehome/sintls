@@ -43,7 +43,7 @@ func BasicAuth(db *pg.DB, isadmin bool) gin.HandlerFunc {
 					log.Println("password does not match")
 					goto Exit401
 				} else {
-					c.Set(AuthUserKey, dbauth)
+					c.Set(AuthUserKey, &dbauth)
 					return
 				}
 			}

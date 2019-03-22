@@ -14,7 +14,10 @@ import (
 	"strings"
 )
 
-import "github.com/zehome/sintls/sintls"
+import (
+	"github.com/zehome/sintls/sintls"
+	sintls_dns "github.com/zehome/sintls/dns"
+)
 
 func main() {
 	bindaddress := flag.String(
@@ -52,7 +55,7 @@ func main() {
 		},
 		*debug,
 		*initdb,
-		flag.NArg() >= 1,
+		true,
 	)
 
 	// CLI
@@ -86,7 +89,10 @@ func main() {
 	provider, err := dns.NewDNSChallengeProviderByName(*providername)
 	if err != nil {
 		log.Fatal("invalid lego provider: ", err)
-		return
+	}
+	dnsupdater, err := sintls_dns.NewDNSUpdaterByName(*providername)
+	if err != nil {
+		log.Fatal("invalid dns updater: ", err)
 	}
 
 	r := gin.Default()
@@ -97,6 +103,7 @@ func main() {
 	dbuse := r.Group("/", func(c *gin.Context) {
 		c.Set("database", db)
 		c.Set("dnsprovider", provider)
+		c.Set("dnsupdater", dnsupdater)
 	})
 
 	authorized := dbuse.Group("/", sintls.BasicAuth(db, false))
@@ -109,5 +116,5 @@ func main() {
 
 	fmt.Printf(
 		"Listening on %s (log: %s)\n", *bindaddress, *logfile)
-	log.Fatal(r.Run(*bindaddress))
+	r.Run(*bindaddress)
 }

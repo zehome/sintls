@@ -11,7 +11,7 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190314091128-68d7b8c80e16 // indirect
 	github.com/aws/aws-sdk-go v1.18.2 // indirect
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
-	github.com/cheynewallace/tabby v1.1.0 // indirect
+	github.com/cheynewallace/tabby v1.1.0
 	github.com/cloudflare/cloudflare-go v0.8.5 // indirect
 	github.com/cpu/goacmedns v0.0.1 // indirect
 	github.com/decker502/dnspod-go v0.0.0-20180416134550-83a3ba562b04 // indirect
@@ -22,7 +22,7 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3 // indirect
 	github.com/gin-gonic/gin v1.3.0
-	github.com/go-acme/lego v2.3.0+incompatible
+	github.com/go-acme/lego v2.3.1-0.20190318164254-3684cc738d37+incompatible
 	github.com/go-ini/ini v1.42.0 // indirect
 	github.com/go-pg/migrations v6.7.2+incompatible
 	github.com/go-pg/pg v8.0.2+incompatible
@@ -49,18 +49,20 @@ require (
 	github.com/nrdcg/auroradns v1.0.0 // indirect
 	github.com/nrdcg/goinwx v0.6.0 // indirect
 	github.com/oracle/oci-go-sdk v4.2.0+incompatible // indirect
-	github.com/ovh/go-ovh v0.0.0-20181109152953-ba5adb4cf014 // indirect
+	github.com/ovh/go-ovh v0.0.0-20181109152953-ba5adb4cf014
+	github.com/rainycape/memcache v0.0.0-20150622160815-1031fa0ce2f2 // indirect
 	github.com/sacloud/libsacloud v1.15.6 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/timewasted/linode v0.0.0-20160829202747-37e84520dcf7 // indirect
 	github.com/transip/gotransip v5.8.2+incompatible // indirect
 	github.com/ugorji/go/codec v0.0.0-20190309163734-c4a1c341dc93 // indirect
-	github.com/xenolf/lego v2.3.0+incompatible // indirect
+	github.com/urfave/cli v1.20.0
 	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a
+	golang.org/x/net v0.0.0-20190311183353-d8887717615a
 	golang.org/x/sys v0.0.0-20190312061237-fead79001313 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	google.golang.org/api v0.2.0 // indirect
-	gopkg.in/AlecAivazis/survey.v1 v1.8.2 // indirect
+	gopkg.in/AlecAivazis/survey.v1 v1.8.2
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/ns1/ns1-go.v2 v2.0.0-20181211201113-a57b2a18aab6 // indirect

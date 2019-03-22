@@ -7,6 +7,7 @@ import (
 	"github.com/go-pg/pg"
 	"log"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -22,6 +23,81 @@ type Authorization struct {
 
 func (a Authorization) String() string {
 	return fmt.Sprintf("Name: %s Secret: %s Id: %d", a.Name, a.Secret, a.AuthorizationId)
+}
+
+func (a *Authorization) CanUseHost(db *pg.DB, host string) bool {
+	// Get subdomain
+	subdomain := strings.Join(strings.Split(host, ".")[1:], ".")
+	log.Println("host: ", host, "subdomain: ", subdomain, "a.Name: ", a.Name)
+	var subdomains []SubDomain
+	count, err := db.Model(&subdomains).
+		Column("Authorization").
+		Where(`"authorization".name = ?`, a.Name).
+		Where(`"sub_domain".name = ?`, subdomain).
+		Count()
+	if err != nil {
+		log.Println("Count error: ", err)
+		return false
+	}
+	return count > 0
+}
+
+func (a *Authorization) CreateOrUpdateHost(
+		db *pg.Tx, fqdn string,
+		target_a, target_aaaa, target_cname string) error {
+	// Find subdomain
+	var subdomain *SubDomain
+	var subdomains []SubDomain
+	var ip_a net.IP
+	var ip_aaaa net.IP
+	err := db.Model(&subdomains).
+		Column("subdomain_id").
+		Relation("Authorization").
+		Where(`"authorization".authorization_id = ?`, a.AuthorizationId).
+		Select()
+	if err != nil {
+		return fmt.Errorf("db: get subdomain failed: %s", err)
+	}
+	if len(subdomains) == 0 {
+		return fmt.Errorf("db: no subdomain available")
+	}
+	for _, _subdomain := range subdomains {
+		if strings.HasSuffix(fqdn, _subdomain.Name) {
+			subdomain = &_subdomain
+			break
+		}
+	}
+	if subdomain == nil {
+		return fmt.Errorf("db: hostname does not match any subdomain")
+	}
+	if len(target_a) > 0 {
+		if ip_a, _, err = net.ParseCIDR(fmt.Sprintf("%s/32", target_a)); err != nil {
+			return fmt.Errorf("db: unable to parse target_a: %s", err)
+		}
+	}
+	if len(target_aaaa) > 0 {
+		if ip_aaaa, _, err = net.ParseCIDR(fmt.Sprintf("%s/128", target_aaaa)); err != nil {
+			return fmt.Errorf("db: unable to parse target_aaaa: %s", err)
+		}
+	}
+	host := Host{
+		Name: fqdn,
+		SubDomainId: subdomain.SubDomainId,
+		DnsTargetA: ip_a,
+		DnsTargetAAAA: ip_aaaa,
+		DnsTargetCNAME: target_cname,
+	}
+	_, err = db.Model(&host).
+		OnConflict("(name, subdomain_id) DO UPDATE").
+		Set("updated_at = now()").
+		Set("dns_target_a = ?", ip_a).
+		Set("dns_target_aaaa = ?", ip_aaaa).
+		Set("dns_target_cname = ?", target_cname).
+		Insert()
+	if err != nil {
+		return fmt.Errorf("db: update host failed: %s", err)
+	}
+	return nil
 }
 
 type SubDomain struct {
@@ -44,7 +120,9 @@ type Host struct {
 	Name          string `sql:"name,notnull"`
 	DnsTargetA    net.IP `sql:"dns_target_a"`
 	DnsTargetAAAA net.IP `sql:"dns_target_aaaa"`
+	DnsTargetCNAME string `sql:"dns_target_cname"`
 }
+
 
 type dbLogger struct{}
 

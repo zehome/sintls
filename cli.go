@@ -58,7 +58,7 @@ func CheckArg(s string, m string) bool {
 
 func RunCLI(db *pg.DB, args []string) {
 	if len(args) == 0 {
-		log.Fatal("RunCLI without arguments")
+		log.Println("RunCLI without arguments")
 		return
 	}
 	if CheckArg(args[0], "h") {
@@ -83,7 +83,7 @@ func RunCLI(db *pg.DB, args []string) {
 		}
 		_, err = db.Model(&authorization).Returning("*").Insert()
 		if err != nil {
-			log.Fatal("INSERT authorization failed: ", err)
+			log.Println("INSERT authorization failed: ", err)
 			return
 		}
 		err = db.Insert(&sintls.SubDomain{
@@ -91,7 +91,7 @@ func RunCLI(db *pg.DB, args []string) {
 			AuthorizationId:	authorization.AuthorizationId,
 		})
 		if err != nil {
-			log.Fatal("INSERT SubDomain failed: ", err)
+			log.Println("INSERT SubDomain failed: ", err)
 			return
 		}
 	} else if CheckArg(args[0], "l") {
@@ -101,7 +101,7 @@ func RunCLI(db *pg.DB, args []string) {
 			var authorizations []sintls.Authorization
 			err := db.Model(&authorizations).Select()
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 				return
 			}
 			t := tabby.New()
@@ -124,7 +124,7 @@ func RunCLI(db *pg.DB, args []string) {
 				"sub_domain.updated_at",
 				"Authorization").Order("authorization.name ASC").Order("sub_domain.name ASC").Select()
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 				return
 			}
 			t := tabby.New()
@@ -152,7 +152,7 @@ func RunCLI(db *pg.DB, args []string) {
 				Order("sub_domain.name ASC").
 				Order("host.name ASC").Select()
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
 				return
 			}
 			t := tabby.New()
@@ -167,10 +167,10 @@ func RunCLI(db *pg.DB, args []string) {
 					row.DnsTargetAAAA,
 				)
 			}
-			fmt.Println("Subdomains:")
+			fmt.Println("Hosts:")
 			t.Print()
 		}
 	} else {
-		log.Fatal("unknown command")
+		log.Println("unknown command")
 	}
 }

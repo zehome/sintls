@@ -7,6 +7,7 @@ import (
 	"github.com/go-acme/lego/challenge"
 	"log"
 	"net/http"
+	"github.com/zehome/sintls/dns"
 )
 
 /* Lego httpreq RAW request */
@@ -14,7 +15,41 @@ type LegoMessage struct {
 	Domain  string `json:"domain"`
 	Token   string `json:"token"`
 	KeyAuth string `json:"keyAuth"`
+	TargetA string `json:"dnstarget_a"`
+	TargetAAAA string `json:"dnstarget_aaaa"`
+	TargetCNAME string `json:"dnstarget_cname"`
 }
+
+func updateDNSRecords(db *pg.Tx, req LegoMessage, user *Authorization, dnsupdater *dns.DNSUpdater) error {
+	err = user.CreateOrUpdateHost(
+		tx, req.Domain, req.TargetA, req.TargetAAAA, req.TargetCNAME)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("sintls: update host failed: %s", err)
+		return
+	}
+	// Update DNS records
+	if len(req.TargetA) > 0 {
+		err = dnsupdater.SetRecord(req.Domain, "A", req.TargetA)
+		if err != nil {
+			log.Printf("sintls: setrecord A failed: %s", err)
+			return
+		}
+	}
+	if len(req.TargetAAAA) > 0 {
+		err = dnsupdater.SetRecord(req.Domain, "AAAA", req.TargetAAAA)
+		if err != nil {
+			log.Printf("sintls: setrecord AAAA failed: %s", err)
+			return
+		}
+	}
+	if len(req.TargetA) == 0 && len(req.TargetAAAA) == 0 && len(req.TargetCNAME) > 0 {
+		err = dnsupdater.SetRecord(req.Domain, "CNAME", req.TargetCNAME)
+		return
+	}
+	return
+}
+
 
 func LegoPresent(c *gin.Context) {
 	var req LegoMessage
@@ -22,14 +57,50 @@ func LegoPresent(c *gin.Context) {
 		c.String(http.StatusBadRequest, "bad request:", err.Error())
 		return
 	}
-	provider := c.MustGet("dnsprovider").(challenge.Provider)
-	err := provider.Present(req.Domain, req.Token, req.KeyAuth)
-	if err != nil {
-		log.Print(err)
-		c.String(http.StatusInternalServerError, "lego Present failed")
+	user := c.MustGet("user").(*Authorization)
+	db := c.MustGet("database").(*pg.DB)
+	if user == nil {
+		c.String(http.StatusUnauthorized, "user auth is required")
 		return
 	}
-	c.String(http.StatusOK, "success")
+	if ! user.CanUseHost(db, req.Domain) {
+		c.String(http.StatusForbidden, "no permissions to use this domain")
+		return
+	}
+	// Lego DNS Provider
+	provider := c.MustGet("dnsprovider").(challenge.Provider)
+	// Custom DNS Updater
+	dnsupdater := c.MustGet("dnsupdater").(dns.DNSUpdater)
+
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("sintls: db.Begin() failed", err)
+		c.String(http.StatusInternalServerError, "begin failed")
+		return
+	}
+
+	err = updateDNSRecords(tx, req, user, &dnsupdater)
+	if err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "update dnsrecords failed")
+		return
+	}
+
+	// Lego challenge
+	err = provider.Present(req.Domain, req.Token, req.KeyAuth)
+	if err != nil {
+		tx.Rollback()
+		log.Printf("sintls: %s", err)
+		c.String(http.StatusInternalServerError, "lego present failed")
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Printf("sintls: tx.Commit() failed: ", err)
+		c.String(http.StatusInternalServerError, "commit failed")
+	} else {
+		c.String(http.StatusOK, "success")
+	}
 }
 
 func LegoCleanup(c *gin.Context) {
@@ -38,10 +109,20 @@ func LegoCleanup(c *gin.Context) {
 		c.String(http.StatusBadRequest, "bad request:", err.Error())
 		return
 	}
+	user := c.MustGet("user").(*Authorization)
+	db := c.MustGet("database").(*pg.DB)
+	if user == nil {
+		c.String(http.StatusUnauthorized, "user auth is required")
+		return
+	}
+	if ! user.CanUseHost(db, req.Domain) {
+		c.String(http.StatusForbidden, "no permissions to use this domain")
+		return
+	}
 	provider := c.MustGet("dnsprovider").(challenge.Provider)
 	err := provider.CleanUp(req.Domain, req.Token, req.KeyAuth)
 	if err != nil {
-		log.Print(err)
+		log.Printf("sintls: %s", err)
 		c.String(http.StatusInternalServerError, "lego Cleanup failed")
 		return
 	}
@@ -55,7 +136,7 @@ type CreateAuthMessage struct {
 
 func CreateAuth(c *gin.Context) {
 	var authmessage CreateAuthMessage
-	user := c.MustGet("user").(Authorization)
+	user := c.MustGet("user").(*Authorization)
 	if user.Admin.Bool != true {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -97,7 +178,7 @@ type DeleteAuthMessage struct {
 func DeleteAuth(c *gin.Context) {
 	var req DeleteAuthMessage
 	//var auth Authorization
-	user := c.MustGet("user").(Authorization)
+	user := c.MustGet("user").(*Authorization)
 	if user.Admin.Bool != true {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -109,7 +190,7 @@ func DeleteAuth(c *gin.Context) {
 	}
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatal("db.Begin() failed: ", err)
+		log.Printf("db.Begin() failed: %s", err)
 		return
 	}
 	// Rollback tx on error.
