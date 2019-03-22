@@ -6,21 +6,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"github.com/go-acme/lego/challenge"
 	"log"
+	"net"
 	"net/http"
 	"github.com/zehome/sintls/dns"
 )
 
-/* Lego httpreq RAW request */
+// Lego httpreq RAW request
 type LegoMessage struct {
 	Domain  string `json:"domain"`
 	Token   string `json:"token"`
 	KeyAuth string `json:"keyAuth"`
-	TargetA string `json:"dnstarget_a"`
-	TargetAAAA string `json:"dnstarget_aaaa"`
-	TargetCNAME string `json:"dnstarget_cname"`
+	TargetA net.IP `json:"dnstarget_a,omitempty"`
+	TargetAAAA net.IP `json:"dnstarget_aaaa,omitempty"`
+	TargetCNAME string `json:"dnstarget_cname,omitempty"`
 }
 
-func updateDNSRecords(db *pg.Tx, req LegoMessage, user *Authorization, dnsupdater *dns.DNSUpdater) error {
+func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdater dns.DNSUpdater) (err error) {
 	err = user.CreateOrUpdateHost(
 		tx, req.Domain, req.TargetA, req.TargetAAAA, req.TargetCNAME)
 	if err != nil {
@@ -29,27 +30,65 @@ func updateDNSRecords(db *pg.Tx, req LegoMessage, user *Authorization, dnsupdate
 		return
 	}
 	// Update DNS records
-	if len(req.TargetA) > 0 {
-		err = dnsupdater.SetRecord(req.Domain, "A", req.TargetA)
+	if req.TargetA.String() != "<nil>" {
+		err = dnsupdater.SetRecord(req.Domain, "A", req.TargetA.String())
 		if err != nil {
 			log.Printf("sintls: setrecord A failed: %s", err)
 			return
 		}
 	}
-	if len(req.TargetAAAA) > 0 {
-		err = dnsupdater.SetRecord(req.Domain, "AAAA", req.TargetAAAA)
+	if req.TargetAAAA.String() != "<nil>" {
+		err = dnsupdater.SetRecord(req.Domain, "AAAA", req.TargetAAAA.String())
 		if err != nil {
 			log.Printf("sintls: setrecord AAAA failed: %s", err)
 			return
 		}
 	}
-	if len(req.TargetA) == 0 && len(req.TargetAAAA) == 0 && len(req.TargetCNAME) > 0 {
+	if req.TargetA.String() != "<nil>" && req.TargetAAAA.String() != "<nil>" && len(req.TargetCNAME) > 0 {
 		err = dnsupdater.SetRecord(req.Domain, "CNAME", req.TargetCNAME)
 		return
 	}
 	return
 }
 
+func UpdateDNSRecords(c *gin.Context) {
+	var req LegoMessage
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.String(http.StatusBadRequest, "bad request:", err.Error())
+		return
+	}
+	user := c.MustGet("user").(*Authorization)
+	db := c.MustGet("database").(*pg.DB)
+	if user == nil {
+		c.String(http.StatusUnauthorized, "user auth is required")
+		return
+	}
+	if ! user.CanUseHost(db, req.Domain) {
+		c.String(http.StatusForbidden, "no permissions to use this domain")
+		return
+	}
+	// Custom DNS Updater
+	dnsupdater := c.MustGet("dnsupdater").(dns.DNSUpdater)
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("sintls: db.Begin() failed", err)
+		c.String(http.StatusInternalServerError, "begin failed")
+		return
+	}
+
+	err = updateDNSRecords(tx, req, user, dnsupdater)
+	if err != nil {
+		tx.Rollback()
+		c.String(http.StatusInternalServerError, "update dnsrecords failed")
+		return
+	}
+	if err := tx.Commit(); err != nil {
+		log.Printf("sintls: tx.Commit() failed: ", err)
+		c.String(http.StatusInternalServerError, "commit failed")
+	} else {
+		c.String(http.StatusOK, "success")
+	}
+}
 
 func LegoPresent(c *gin.Context) {
 	var req LegoMessage
@@ -79,7 +118,7 @@ func LegoPresent(c *gin.Context) {
 		return
 	}
 
-	err = updateDNSRecords(tx, req, user, &dnsupdater)
+	err = updateDNSRecords(tx, req, user, dnsupdater)
 	if err != nil {
 		tx.Rollback()
 		c.String(http.StatusInternalServerError, "update dnsrecords failed")

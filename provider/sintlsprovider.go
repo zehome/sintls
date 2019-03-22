@@ -101,6 +101,23 @@ func (d *Provider) Timeout() (timeout, interval time.Duration) {
 	return d.config.PropagationTimeout, d.config.PollingInterval
 }
 
+// Just update DNS target records
+func (d *Provider) UpdateDNS(domain string) error {
+	msg := &message{
+		Domain:  domain,
+		Token:   "",
+		KeyAuth: "",
+		TargetA: d.GetTargetA(),
+		TargetAAAA: d.GetTargetAAAA(),
+		TargetCNAME: d.GetTargetCNAME(),
+	}
+	err := d.doPost("/updatedns", msg)
+	if err != nil {
+		return fmt.Errorf("sintls: %v", err)
+	}
+	return nil
+}
+
 // Present creates a TXT record to fulfill the dns-01 challenge
 func (d *Provider) Present(domain, token, keyAuth string) error {
 	msg := &message{

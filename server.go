@@ -109,6 +109,7 @@ func main() {
 	authorized := dbuse.Group("/", sintls.BasicAuth(db, false))
 	authorized.POST("/present", sintls.LegoPresent)
 	authorized.POST("/cleanup", sintls.LegoCleanup)
+	authorized.POST("/updatedns", sintls.UpdateDNSRecords)
 
 	admin := dbuse.Group("/admin", sintls.BasicAuth(db, true))
 	admin.POST("/auth", sintls.CreateAuth)

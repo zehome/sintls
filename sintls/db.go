@@ -44,12 +44,10 @@ func (a *Authorization) CanUseHost(db *pg.DB, host string) bool {
 
 func (a *Authorization) CreateOrUpdateHost(
 		db *pg.Tx, fqdn string,
-		target_a, target_aaaa, target_cname string) error {
+		target_a, target_aaaa net.IP, target_cname string) error {
 	// Find subdomain
 	var subdomain *SubDomain
 	var subdomains []SubDomain
-	var ip_a net.IP
-	var ip_aaaa net.IP
 	err := db.Model(&subdomains).
 		Column("subdomain_id").
 		Relation("Authorization").
@@ -70,30 +68,28 @@ func (a *Authorization) CreateOrUpdateHost(
 	if subdomain == nil {
 		return fmt.Errorf("db: hostname does not match any subdomain")
 	}
-	if len(target_a) > 0 {
-		if ip_a, _, err = net.ParseCIDR(fmt.Sprintf("%s/32", target_a)); err != nil {
-			return fmt.Errorf("db: unable to parse target_a: %s", err)
-		}
-	}
-	if len(target_aaaa) > 0 {
-		if ip_aaaa, _, err = net.ParseCIDR(fmt.Sprintf("%s/128", target_aaaa)); err != nil {
-			return fmt.Errorf("db: unable to parse target_aaaa: %s", err)
-		}
-	}
 	host := Host{
 		Name: fqdn,
 		SubDomainId: subdomain.SubDomainId,
-		DnsTargetA: ip_a,
-		DnsTargetAAAA: ip_aaaa,
+		DnsTargetA: target_a,
+		DnsTargetAAAA: target_aaaa,
 		DnsTargetCNAME: target_cname,
 	}
-	_, err = db.Model(&host).
+	qs := db.Model(&host).
 		OnConflict("(name, subdomain_id) DO UPDATE").
 		Set("updated_at = now()").
-		Set("dns_target_a = ?", ip_a).
-		Set("dns_target_aaaa = ?", ip_aaaa).
-		Set("dns_target_cname = ?", target_cname).
-		Insert()
+		Set("dns_target_cname = ?", target_cname)
+	if target_a.String() != "<nil>" {
+		qs = qs.Set("dns_target_a = ?", target_a)
+	} else {
+		qs = qs.Set("dns_target_a = ?", nil)
+	}
+	if target_aaaa.String() != "<nil>" {
+		qs = qs.Set("dns_target_aaaa = ?", target_aaaa)
+	} else {
+		qs = qs.Set("dns_target_aaaa = ?", nil)
+	}
+	_, err = qs.Insert()
 	if err != nil {
 		return fmt.Errorf("db: update host failed: %s", err)
 	}
