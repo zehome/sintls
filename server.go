@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-pg/pg"
 	"github.com/go-acme/lego/providers/dns"
+	"github.com/go-pg/pg"
 	"io"
 	"log"
 	"net/http"
@@ -15,8 +15,8 @@ import (
 )
 
 import (
-	"github.com/zehome/sintls/sintls"
 	sintls_dns "github.com/zehome/sintls/dns"
+	"github.com/zehome/sintls/sintls"
 )
 
 func main() {
@@ -111,9 +111,9 @@ func main() {
 	authorized.POST("/cleanup", sintls.LegoCleanup)
 	authorized.POST("/updatedns", sintls.UpdateDNSRecords)
 
-	admin := dbuse.Group("/admin", sintls.BasicAuth(db, true))
-	admin.POST("/auth", sintls.CreateAuth)
-	admin.DELETE("/auth", sintls.DeleteAuth)
+	// admin := dbuse.Group("/admin", sintls.BasicAuth(db, true))
+	// admin.POST("/auth", sintls.CreateAuth)
+	// admin.DELETE("/auth", sintls.DeleteAuth)
 
 	fmt.Printf(
 		"Listening on %s (log: %s)\n", *bindaddress, *logfile)

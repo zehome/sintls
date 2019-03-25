@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/zehome/sintls/cmd"
 	"github.com/urfave/cli"
+	"github.com/zehome/sintls/cmd"
 )
 
 var (

@@ -19,11 +19,11 @@ import (
 )
 
 type message struct {
-	Domain  string `json:"domain"`
-	Token   string `json:"token"`
-	KeyAuth string `json:"keyAuth"`
-	TargetA string `json:"dnstarget_a"`
-	TargetAAAA string `json:"dnstarget_aaaa"`
+	Domain      string `json:"domain"`
+	Token       string `json:"token"`
+	KeyAuth     string `json:"keyAuth"`
+	TargetA     string `json:"dnstarget_a"`
+	TargetAAAA  string `json:"dnstarget_aaaa"`
 	TargetCNAME string `json:"dnstarget_cname"`
 }
 
@@ -44,7 +44,7 @@ type Config struct {
 func NewDefaultConfig() *Config {
 	return &Config{
 		PropagationTimeout: 180 * time.Second,
-		PollingInterval: dns01.DefaultPollingInterval,
+		PollingInterval:    dns01.DefaultPollingInterval,
 		HTTPClient: &http.Client{
 			Timeout: env.GetOrDefaultSecond("SINTLS_HTTP_TIMEOUT", 30*time.Second),
 		},
@@ -104,11 +104,11 @@ func (d *Provider) Timeout() (timeout, interval time.Duration) {
 // Just update DNS target records
 func (d *Provider) UpdateDNS(domain string) error {
 	msg := &message{
-		Domain:  domain,
-		Token:   "",
-		KeyAuth: "",
-		TargetA: d.GetTargetA(),
-		TargetAAAA: d.GetTargetAAAA(),
+		Domain:      domain,
+		Token:       "",
+		KeyAuth:     "",
+		TargetA:     d.GetTargetA(),
+		TargetAAAA:  d.GetTargetAAAA(),
 		TargetCNAME: d.GetTargetCNAME(),
 	}
 	err := d.doPost("/updatedns", msg)
@@ -121,11 +121,11 @@ func (d *Provider) UpdateDNS(domain string) error {
 // Present creates a TXT record to fulfill the dns-01 challenge
 func (d *Provider) Present(domain, token, keyAuth string) error {
 	msg := &message{
-		Domain:  domain,
-		Token:   token,
-		KeyAuth: keyAuth,
-		TargetA: d.GetTargetA(),
-		TargetAAAA: d.GetTargetAAAA(),
+		Domain:      domain,
+		Token:       token,
+		KeyAuth:     keyAuth,
+		TargetA:     d.GetTargetA(),
+		TargetAAAA:  d.GetTargetAAAA(),
 		TargetCNAME: d.GetTargetCNAME(),
 	}
 	err := d.doPost("/present", msg)
@@ -138,11 +138,11 @@ func (d *Provider) Present(domain, token, keyAuth string) error {
 // CleanUp removes the TXT record matching the specified parameters
 func (d *Provider) CleanUp(domain, token, keyAuth string) error {
 	msg := &message{
-		Domain:  domain,
-		Token:   token,
-		KeyAuth: keyAuth,
-		TargetA: d.GetTargetA(),
-		TargetAAAA: d.GetTargetAAAA(),
+		Domain:      domain,
+		Token:       token,
+		KeyAuth:     keyAuth,
+		TargetA:     d.GetTargetA(),
+		TargetAAAA:  d.GetTargetAAAA(),
 		TargetCNAME: d.GetTargetCNAME(),
 	}
 	err := d.doPost("/cleanup", msg)

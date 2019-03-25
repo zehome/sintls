@@ -7,7 +7,6 @@ import (
 	"github.com/zehome/sintls/provider"
 )
 
-
 func setupHttpReq(ctx *cli.Context, client *lego.Client) {
 	provider, err := sintlsprovider.NewProvider(ctx)
 	if err != nil {

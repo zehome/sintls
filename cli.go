@@ -35,9 +35,9 @@ var adduserQs = []*survey.Question{
 		Validate: survey.Required,
 	},
 	{
-		Name:      "subdomain",
-		Prompt:    &survey.Input{Message: "Subdomain:"},
-		Validate:  survey.Required,
+		Name:     "subdomain",
+		Prompt:   &survey.Input{Message: "Subdomain:"},
+		Validate: survey.Required,
 	},
 	{
 		Name:      "password",
@@ -65,10 +65,10 @@ func RunCLI(db *pg.DB, args []string) {
 		fmt.Println("commands: help, adduser, list [authorization,subdomain,host]")
 	} else if CheckArg(args[0], "a") {
 		adduser_anwsers := struct {
-			Name     	string
-			Password 	string
-			Subdomain 	string
-			Admin    	bool
+			Name      string
+			Password  string
+			Subdomain string
+			Admin     bool
 		}{}
 		// ask the question
 		err := survey.Ask(adduserQs, &adduser_anwsers)
@@ -87,8 +87,8 @@ func RunCLI(db *pg.DB, args []string) {
 			return
 		}
 		err = db.Insert(&sintls.SubDomain{
-			Name:				adduser_anwsers.Subdomain,
-			AuthorizationId:	authorization.AuthorizationId,
+			Name:            adduser_anwsers.Subdomain,
+			AuthorizationId: authorization.AuthorizationId,
 		})
 		if err != nil {
 			log.Println("INSERT SubDomain failed: ", err)

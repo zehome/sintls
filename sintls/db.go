@@ -43,8 +43,8 @@ func (a *Authorization) CanUseHost(db *pg.DB, host string) bool {
 }
 
 func (a *Authorization) CreateOrUpdateHost(
-		db *pg.Tx, fqdn string,
-		target_a, target_aaaa net.IP, target_cname string) error {
+	db *pg.Tx, fqdn string,
+	target_a, target_aaaa net.IP, target_cname string) error {
 	// Find subdomain
 	var subdomain *SubDomain
 	var subdomains []SubDomain
@@ -69,10 +69,10 @@ func (a *Authorization) CreateOrUpdateHost(
 		return fmt.Errorf("db: hostname does not match any subdomain")
 	}
 	host := Host{
-		Name: fqdn,
-		SubDomainId: subdomain.SubDomainId,
-		DnsTargetA: target_a,
-		DnsTargetAAAA: target_aaaa,
+		Name:           fqdn,
+		SubDomainId:    subdomain.SubDomainId,
+		DnsTargetA:     target_a,
+		DnsTargetAAAA:  target_aaaa,
 		DnsTargetCNAME: target_cname,
 	}
 	qs := db.Model(&host).
@@ -107,18 +107,17 @@ type SubDomain struct {
 }
 
 type Host struct {
-	tableName     struct{}  `sql:"sintls_host"`
-	HostId        uint64    `sql:"host_id,pk"`
-	CreatedAt     time.Time `sql:"created_at,notnull,default:now()"`
-	UpdatedAt     time.Time `sql:"updated_at,notnull,default:now()"`
-	SubDomain     *SubDomain
-	SubDomainId   uint64 `sql:"subdomain_id,notnull,on_delete:CASCADE"`
-	Name          string `sql:"name,notnull"`
-	DnsTargetA    net.IP `sql:"dns_target_a"`
-	DnsTargetAAAA net.IP `sql:"dns_target_aaaa"`
+	tableName      struct{}  `sql:"sintls_host"`
+	HostId         uint64    `sql:"host_id,pk"`
+	CreatedAt      time.Time `sql:"created_at,notnull,default:now()"`
+	UpdatedAt      time.Time `sql:"updated_at,notnull,default:now()"`
+	SubDomain      *SubDomain
+	SubDomainId    uint64 `sql:"subdomain_id,notnull,on_delete:CASCADE"`
+	Name           string `sql:"name,notnull"`
+	DnsTargetA     net.IP `sql:"dns_target_a"`
+	DnsTargetAAAA  net.IP `sql:"dns_target_aaaa"`
 	DnsTargetCNAME string `sql:"dns_target_cname"`
 }
-
 
 type dbLogger struct{}
 
