@@ -1,6 +1,7 @@
 language: go
 go:
 - 1.12.x
+
 script:
 - make
 - mkdir -p dist/
@@ -8,6 +9,7 @@ script:
 - mv dist/sintlsserver dist/sintlsserver_linux_amd64
 - sha256sum dist/sintls_linux_amd64 > dist/sintls_linux_amd64.sha256
 - sha256sum dist/sintlsserver_linux_amd64 > dist/sintlsserver_linux_amd64.sha256
+
 deploy:
   provider: releases
   api_key:
@@ -15,3 +17,6 @@ deploy:
   file: dist/*
   on:
     repo: zehome/sintls
+
+env:
+  - GO111MODULE=on
