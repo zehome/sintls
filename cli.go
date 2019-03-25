@@ -10,6 +10,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 import "github.com/zehome/sintls/sintls"
@@ -146,6 +147,7 @@ func RunCLI(db *pg.DB, args []string) {
 				"host.updated_at",
 				"host.dns_target_a",
 				"host.dns_target_aaaa",
+				"host.dns_target_cname",
 				"SubDomain",
 				"SubDomain.Authorization").
 				Order("sub_domain__authorization.name ASC").
@@ -156,15 +158,18 @@ func RunCLI(db *pg.DB, args []string) {
 				return
 			}
 			t := tabby.New()
-			t.AddHeader("Username", "SubDomain", "Name", "TargetA", "TargetAAAA", "UpdatedAt")
+			t.AddHeader("Username", "SubDomain", "Name", "A", "AAAA", "CNAME", "UpdatedAt", "Expires")
 			for _, row := range hosts {
+				expires := time.Now().Add(90 * 24 * time.Hour).Sub(row.UpdatedAt)
 				t.AddLine(
 					row.SubDomain.Authorization.Name,
 					row.SubDomain.Name,
 					row.Name,
-					row.UpdatedAt.Format("2006-01-02 15:04:05"),
 					row.DnsTargetA,
 					row.DnsTargetAAAA,
+					row.DnsTargetCNAME,
+					row.UpdatedAt.Format("2006-01-02 15:04:05"),
+					fmt.Sprintf("%d days", expires / (24 * time.Hour)),
 				)
 			}
 			fmt.Println("Hosts:")

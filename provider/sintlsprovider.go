@@ -63,7 +63,7 @@ func (d *Provider) GetTargetAAAA() string {
 	return d.config.TargetAAAA
 }
 func (d *Provider) GetTargetCNAME() string {
-	return d.config.TargetAAAA
+	return d.config.TargetCNAME
 }
 
 // NewProvider returns a Provider instance.

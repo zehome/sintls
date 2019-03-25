@@ -79,12 +79,12 @@ func (a *Authorization) CreateOrUpdateHost(
 		OnConflict("(name, subdomain_id) DO UPDATE").
 		Set("updated_at = now()").
 		Set("dns_target_cname = ?", target_cname)
-	if target_a.String() != "<nil>" {
+	if len(target_a) != 0 {
 		qs = qs.Set("dns_target_a = ?", target_a)
 	} else {
 		qs = qs.Set("dns_target_a = ?", nil)
 	}
-	if target_aaaa.String() != "<nil>" {
+	if len(target_aaaa) != 0 {
 		qs = qs.Set("dns_target_aaaa = ?", target_aaaa)
 	} else {
 		qs = qs.Set("dns_target_aaaa = ?", nil)

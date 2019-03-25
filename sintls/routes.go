@@ -29,21 +29,21 @@ func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdate
 		return
 	}
 	// Update DNS records
-	if req.TargetA.String() != "<nil>" {
+	if len(req.TargetA) != 0 {
 		err = dnsupdater.SetRecord(req.Domain, "A", req.TargetA.String())
 		if err != nil {
 			log.Printf("sintls: setrecord A failed: %s", err)
 			return
 		}
 	}
-	if req.TargetAAAA.String() != "<nil>" {
+	if len(req.TargetAAAA) != 0 {
 		err = dnsupdater.SetRecord(req.Domain, "AAAA", req.TargetAAAA.String())
 		if err != nil {
 			log.Printf("sintls: setrecord AAAA failed: %s", err)
 			return
 		}
 	}
-	if req.TargetA.String() != "<nil>" && req.TargetAAAA.String() != "<nil>" && len(req.TargetCNAME) > 0 {
+	if len(req.TargetA) != 0 && len(req.TargetAAAA) != 0 && len(req.TargetCNAME) > 0 {
 		err = dnsupdater.SetRecord(req.Domain, "CNAME", req.TargetCNAME)
 		return
 	}
