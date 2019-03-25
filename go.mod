@@ -10,6 +10,7 @@ require (
 	github.com/akamai/AkamaiOPEN-edgegrid-golang v0.7.4 // indirect
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190314091128-68d7b8c80e16 // indirect
 	github.com/aws/aws-sdk-go v1.18.2 // indirect
+	github.com/blang/semver v3.5.1+incompatible
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
 	github.com/cheynewallace/tabby v1.1.0
 	github.com/cloudflare/cloudflare-go v0.8.5 // indirect
@@ -26,7 +27,6 @@ require (
 	github.com/go-ini/ini v1.42.0 // indirect
 	github.com/go-pg/migrations v6.7.2+incompatible
 	github.com/go-pg/pg v8.0.2+incompatible
-	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/gophercloud/gophercloud v0.0.0-20190314065736-6e3895ed427a // indirect
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c // indirect
@@ -51,6 +51,7 @@ require (
 	github.com/oracle/oci-go-sdk v4.2.0+incompatible // indirect
 	github.com/ovh/go-ovh v0.0.0-20181109152953-ba5adb4cf014
 	github.com/rainycape/memcache v0.0.0-20150622160815-1031fa0ce2f2 // indirect
+	github.com/rhysd/go-github-selfupdate v1.1.0
 	github.com/sacloud/libsacloud v1.15.6 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/timewasted/linode v0.0.0-20160829202747-37e84520dcf7 // indirect

@@ -56,5 +56,10 @@ func CreateFlags(defaultPath string) []cli.Flag {
 			Usage: "Set the certificate timeout value to a specific value in seconds. Only used when obtaining certificates.",
 			Value: 30,
 		},
+		cli.BoolFlag{
+			Name: "disable-selfupdate",
+			Usage: "Disable self update mecanism using github",
+			EnvVar: "SINTLS_DISABLE_SELFUPDATE",
+		},
 	}
 }
