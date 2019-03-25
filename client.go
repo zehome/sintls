@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/urfave/cli"
 	"github.com/zehome/sintls/cmd"
 )
@@ -31,6 +32,9 @@ func main() {
 	app.Flags = cmd.CreateFlags(defaultPath)
 	app.Before = cmd.Before
 	app.Commands = cmd.CreateCommands()
+
+	selfupdate.EnableLog()
+
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)

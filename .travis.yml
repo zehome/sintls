@@ -6,9 +6,7 @@ script:
 - make
 - mkdir -p dist/
 - mv bin/sintls dist/sintls_linux_amd64
-- mv bin/sintlsserver dist/sintlsserver_linux_amd64
 - sha256sum dist/sintls_linux_amd64 > dist/sintls_linux_amd64.sha256
-- sha256sum dist/sintlsserver_linux_amd64 > dist/sintlsserver_linux_amd64.sha256
 
 deploy:
   provider: releases

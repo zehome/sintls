@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"bufio"
+	"fmt"
 	"github.com/go-acme/lego/log"
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/urfave/cli"
+	"os"
 )
 
 func doSelfUpdate(ctx *cli.Context) {
@@ -13,15 +16,35 @@ func doSelfUpdate(ctx *cli.Context) {
 		log.Printf("Selfupdate of non official builds are not supported: %s", err)
 		return
 	}
-	latest, err := selfupdate.UpdateCommand("sintls", v, "zehome/sintls")
-	if err != nil {
-		log.Println("Binary update failed:", err)
-		return
-	}
-	if !latest.Version.Equals(v) {
-		log.Println("Successfully updated to version", latest.Version)
-		log.Println("Release note:\n", latest.ReleaseNotes)
-	}
+    latest, found, err := selfupdate.DetectLatest("zehome/sintls")
+    if err != nil {
+        log.Println("Error occurred while detecting version:", err)
+        return
+    }
+
+    if !found || latest.Version.LTE(v) {
+        return
+    }
+
+    fmt.Print("Do you want to update to v", latest.Version, "? (y/n): ")
+    input, err := bufio.NewReader(os.Stdin).ReadString('\n')
+    if err != nil || (input != "y\n" && input != "n\n") {
+        return
+    }
+    if input == "n\n" {
+        return
+    }
+
+	exe, err := os.Executable()
+    if err != nil {
+        log.Println("Could not locate executable path")
+        return
+    }
+    if err := selfupdate.UpdateTo(latest.AssetURL, exe); err != nil {
+        log.Println("Error occurred while updating binary:", err)
+        return
+    }
+    log.Println("Successfully updated to version", latest.Version)
 }
 
 func Before(ctx *cli.Context) error {
