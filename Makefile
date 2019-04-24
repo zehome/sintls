@@ -1,14 +1,12 @@
 GOGET=go get -u
 GOFLAGS=GOOS=linux GOARCH=amd64 CGO_ENABLED=0
-TAG_NAME := $(shell git tag -l --contains HEAD)
-SHA := $(shell git rev-parse HEAD)
-VERSION := $(if $(TAG_NAME),$(TAG_NAME),$(SHA))
+VERSION := $(shell git describe --tags --always --dirty="-dev")
 
 all: bin/sintlsserver bin/sintls
 dbg: bin/sintlsserver.dbg bin/sintls.dbg
 
 version:
-	$(info version: [${VERSION}] sha: [${SHA}] tag: [${TAG_NAME}])
+	$(info version: [${VERSION}])
 
 bin/sintlsserver: server.go cli.go
 	$(GOFLAGS) go build -ldflags='-s -w -X "main.version=${VERSION}"' -o bin/sintlsserver $^
