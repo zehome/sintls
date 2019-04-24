@@ -1,11 +1,12 @@
 package sintls
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"github.com/go-acme/lego/challenge"
 	"github.com/go-pg/pg"
 	"github.com/zehome/sintls/dns"
 	"log"
+	"fmt"
 	"net"
 	"net/http"
 )
@@ -50,78 +51,72 @@ func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdate
 	return
 }
 
-func UpdateDNSRecords(c *gin.Context) {
+func UpdateDNSRecords(c echo.Context) error {
 	var req LegoMessage
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.String(http.StatusBadRequest, "bad request:", err.Error())
-		return
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("bad request: %s", err.Error()))
 	}
-	user := c.MustGet("user").(*Authorization)
-	db := c.MustGet("database").(*pg.DB)
+	user := c.Get("user").(*Authorization)
+	db := c.Get("database").(*pg.DB)
 	if user == nil {
-		c.String(http.StatusUnauthorized, "user auth is required")
-		return
+		return echo.NewHTTPError(http.StatusUnauthorized, "user auth is required")
 	}
 	if !user.CanUseHost(db, req.Domain) {
-		c.String(http.StatusForbidden, "no permissions to use this domain")
-		return
+		return echo.NewHTTPError(http.StatusForbidden, "no permissions to use this domain")
 	}
 	// Custom DNS Updater
-	dnsupdater := c.MustGet("dnsupdater").(dns.DNSUpdater)
+	dnsupdater := c.Get("dnsupdater").(dns.DNSUpdater)
 	tx, err := db.Begin()
 	if err != nil {
 		log.Printf("sintls: db.Begin() failed", err)
-		c.String(http.StatusInternalServerError, "begin failed")
-		return
+		return echo.NewHTTPError(http.StatusInternalServerError, "begin failed")
 	}
 
 	err = updateDNSRecords(tx, req, user, dnsupdater)
 	if err != nil {
 		tx.Rollback()
-		c.String(http.StatusInternalServerError, "update dnsrecords failed")
-		return
+		return echo.NewHTTPError(http.StatusInternalServerError, "update dnsrecords failed")
 	}
 	if err := tx.Commit(); err != nil {
 		log.Printf("sintls: tx.Commit() failed: ", err)
-		c.String(http.StatusInternalServerError, "commit failed")
+		return echo.NewHTTPError(http.StatusInternalServerError, "commit failed")
 	} else {
-		c.String(http.StatusOK, "success")
+		return c.String(http.StatusOK, "success")
 	}
 }
 
-func LegoPresent(c *gin.Context) {
+func LegoPresent(c echo.Context) error {
 	var req LegoMessage
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.String(http.StatusBadRequest, "bad request:", err.Error())
-		return
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("bad request: %s", err.Error()))
 	}
-	user := c.MustGet("user").(*Authorization)
-	db := c.MustGet("database").(*pg.DB)
+
+	if len(req.TargetA) == 0 && len(req.TargetAAAA) == 0 && len(req.TargetCNAME) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "either A, AAAA or CNAME must be defined")
+	}
+	user := c.Get("user").(*Authorization)
+	db := c.Get("database").(*pg.DB)
 	if user == nil {
-		c.String(http.StatusUnauthorized, "user auth is required")
-		return
+		return echo.NewHTTPError(http.StatusUnauthorized, "user auth is required")
 	}
 	if !user.CanUseHost(db, req.Domain) {
-		c.String(http.StatusForbidden, "no permissions to use this domain")
-		return
+		return echo.NewHTTPError(http.StatusForbidden, "no permissions to use this domain")
 	}
 	// Lego DNS Provider
-	provider := c.MustGet("dnsprovider").(challenge.Provider)
+	provider := c.Get("dnsprovider").(challenge.Provider)
 	// Custom DNS Updater
-	dnsupdater := c.MustGet("dnsupdater").(dns.DNSUpdater)
+	dnsupdater := c.Get("dnsupdater").(dns.DNSUpdater)
 
 	tx, err := db.Begin()
 	if err != nil {
 		log.Printf("sintls: db.Begin() failed", err)
-		c.String(http.StatusInternalServerError, "begin failed")
-		return
+		return echo.NewHTTPError(http.StatusInternalServerError, "begin failed")
 	}
 
 	err = updateDNSRecords(tx, req, user, dnsupdater)
 	if err != nil {
 		tx.Rollback()
-		c.String(http.StatusInternalServerError, "update dnsrecords failed")
-		return
+		return echo.NewHTTPError(http.StatusInternalServerError, "update dnsrecords failed")
 	}
 
 	// Lego challenge
@@ -129,42 +124,37 @@ func LegoPresent(c *gin.Context) {
 	if err != nil {
 		tx.Rollback()
 		log.Printf("sintls: %s", err)
-		c.String(http.StatusInternalServerError, "lego present failed")
-		return
+		return echo.NewHTTPError(http.StatusInternalServerError, "lego present failed")
 	}
 
 	if err := tx.Commit(); err != nil {
 		log.Printf("sintls: tx.Commit() failed: ", err)
-		c.String(http.StatusInternalServerError, "commit failed")
+		return echo.NewHTTPError(http.StatusInternalServerError, "commit failed")
 	} else {
-		c.String(http.StatusOK, "success")
+		return c.String(http.StatusOK, "success")
 	}
 }
 
-func LegoCleanup(c *gin.Context) {
+func LegoCleanup(c echo.Context) error {
 	var req LegoMessage
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.String(http.StatusBadRequest, "bad request:", err.Error())
-		return
+	if err := c.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("bad request: %s", err.Error()))
 	}
-	user := c.MustGet("user").(*Authorization)
-	db := c.MustGet("database").(*pg.DB)
+	user := c.Get("user").(*Authorization)
+	db := c.Get("database").(*pg.DB)
 	if user == nil {
-		c.String(http.StatusUnauthorized, "user auth is required")
-		return
+		return echo.NewHTTPError(http.StatusUnauthorized, "user auth is required")
 	}
 	if !user.CanUseHost(db, req.Domain) {
-		c.String(http.StatusForbidden, "no permissions to use this domain")
-		return
+		return echo.NewHTTPError(http.StatusForbidden, "no permissions to use this domain")
 	}
-	provider := c.MustGet("dnsprovider").(challenge.Provider)
+	provider := c.Get("dnsprovider").(challenge.Provider)
 	err := provider.CleanUp(req.Domain, req.Token, req.KeyAuth)
 	if err != nil {
 		log.Printf("sintls: %s", err)
-		c.String(http.StatusInternalServerError, "lego Cleanup failed")
-		return
+		return echo.NewHTTPError(http.StatusInternalServerError, "lego Cleanup failed")
 	}
-	c.String(http.StatusOK, "success")
+	return c.String(http.StatusOK, "success")
 }
 
 // type CreateAuthMessage struct {
@@ -172,39 +162,34 @@ func LegoCleanup(c *gin.Context) {
 // 	Secret string `json:"secret" binding:"required"`
 // }
 
-// func CreateAuth(c *gin.Context) {
+// func CreateAuth(c echo.Context) {
 // 	var authmessage CreateAuthMessage
-// 	user := c.MustGet("user").(*Authorization)
+// 	user := c.Get("user").(*Authorization)
 // 	if user.Admin.Bool != true {
-// 		c.AbortWithStatus(http.StatusUnauthorized)
-// 		return
+// 		return c.AbortWithStatus(http.StatusUnauthorized)
 // 	}
-// 	db := c.MustGet("database").(*pg.DB)
-// 	if err := c.ShouldBindJSON(&authmessage); err != nil {
-// 		c.String(http.StatusBadRequest, "bad request: %s", err.Error())
-// 		return
+// 	db := c.Get("database").(*pg.DB)
+// 	if err := c.Bind(&authmessage); err != nil {
+// 		return echo.NewHTTPError(http.StatusBadRequest, "bad request: %s", err.Error())
 // 	}
 // 	var count int = 0
 // 	count, err := db.Model((*Authorization)(nil)).
 // 		Where("name = ?", authmessage.Name).
 // 		Count()
 // 	if count != 0 || err != nil {
-// 		c.String(http.StatusForbidden, "Authorization %s already exists", authmessage.Name)
-// 		return
+// 		return echo.NewHTTPError(http.StatusForbidden, "Authorization %s already exists", authmessage.Name)
 // 	}
 // 	hashpw, err := bcrypt.GenerateFromPassword(
 // 		[]byte(authmessage.Secret), bcrypt.DefaultCost)
 // 	if err != nil {
-// 		c.String(http.StatusBadRequest, "unhashable password: %s", err)
-// 		return
+// 		return echo.NewHTTPError(http.StatusBadRequest, "unhashable password: %s", err)
 // 	}
 // 	dbauth := Authorization{
 // 		Name:   authmessage.Name,
 // 		Secret: string(hashpw),
 // 	}
 // 	if err := db.Insert(&dbauth); err != nil {
-// 		c.String(http.StatusInternalServerError, "Unknown error: %s", err)
-// 		return
+// 		return echo.NewHTTPError(http.StatusInternalServerError, "Unknown error: %s", err)
 // 	}
-// 	c.String(http.StatusOK, "success")
+// 	return c.String(http.StatusOK, "success")
 // }

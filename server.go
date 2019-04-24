@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/go-acme/lego/providers/dns"
 	"github.com/go-pg/pg"
-	"io"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
 	"net/http"
 	"os"
@@ -23,6 +24,7 @@ func main() {
 	bindaddress := flag.String(
 		"bindaddress", "[::1]:8522",
 		"sintls listening address")
+	autotls := flag.Bool("autotls", false, "enable tls")
 	dbuser := flag.String("dbuser", os.Getenv("USER"), "postgresql username")
 	dbname := flag.String("dbname", os.Getenv("USER"), "postgresql dbname")
 	dbhost := flag.String("dbhost", "/var/run/postgresql", "postgresql host")
@@ -34,6 +36,13 @@ func main() {
 	debug := flag.Bool("debug", false, "enable debug mode")
 	initdb := flag.Bool("initdb", false, "initialize database")
 	flag.Parse()
+
+	log.SetOutput(&lumberjack.Logger{
+	    Filename:   *logfile,
+	    MaxSize:    10,
+	    MaxBackups: 5,
+	    Compress:   true,
+	})
 
 	var dbaddr string
 	var dbnetwork string
@@ -73,17 +82,6 @@ func main() {
 		return
 	}
 
-	if *debug == false {
-		gin.SetMode(gin.ReleaseMode)
-		gin.DisableConsoleColor()
-		f, err := os.OpenFile(*logfile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0640)
-		if err != nil {
-			log.Fatal(err)
-		}
-		gin.DefaultWriter = io.MultiWriter(f)
-		defer f.Close()
-		log.SetOutput(f)
-	}
 
 	// get lego acme provider
 	provider, err := dns.NewDNSChallengeProviderByName(*providername)
@@ -95,18 +93,27 @@ func main() {
 		log.Fatal("invalid dns updater: ", err)
 	}
 
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "pong"})
+	e := echo.New()
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `${remote_ip} - - [${time_rfc3339}] "${method} ${path} HTTP/1.1" ${status} ${bytes_out} "${referer}" "${user_agent}"` + "\n",
+	}))
+	e.Use(middleware.Recover())
+	e.Use(middleware.Secure())
+
+	e.GET("/ping", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, echo.Map{"message": "pong"})
 	})
 
-	dbuse := r.Group("/", func(c *gin.Context) {
-		c.Set("database", db)
-		c.Set("dnsprovider", provider)
-		c.Set("dnsupdater", dnsupdater)
+	dbuse := e.Group("", func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			c.Set("database", db)
+			c.Set("dnsprovider", provider)
+			c.Set("dnsupdater", dnsupdater)
+			return next(c)
+		}
 	})
 
-	authorized := dbuse.Group("/", sintls.BasicAuth(db, false))
+	authorized := dbuse.Group("", middleware.BasicAuth(sintls.BasicAuth(db, false)))
 	authorized.POST("/present", sintls.LegoPresent)
 	authorized.POST("/cleanup", sintls.LegoCleanup)
 	authorized.POST("/updatedns", sintls.UpdateDNSRecords)
@@ -117,5 +124,9 @@ func main() {
 
 	fmt.Printf(
 		"Listening on %s (log: %s)\n", *bindaddress, *logfile)
-	r.Run(*bindaddress)
+	if *autotls == true {
+		e.Logger.Fatal(e.StartAutoTLS(*bindaddress))
+	} else {
+		e.Logger.Fatal(e.Start(*bindaddress))
+	}
 }
