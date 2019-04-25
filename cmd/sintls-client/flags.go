@@ -14,7 +14,7 @@ func CreateFlags(defaultPath string) []cli.Flag {
 		cli.StringFlag{
 			Name:  "server",
 			Usage: "SINTLS server",
-			Value: "https://auth.clarilab.fr/",
+			Value: "https://sintls.clarilab.fr/",
 		},
 		cli.StringFlag{
 			Name:  "target-a",

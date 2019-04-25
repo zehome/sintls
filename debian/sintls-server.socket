@@ -1,0 +1,6 @@
+[Unit]
+Description=SinTLS server socket
+
+[Socket]
+ListenStream=443
+NoDelay=true

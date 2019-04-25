@@ -6,6 +6,7 @@ import (
 	"github.com/go-pg/pg"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"net/http"
 )
 
 // "user" will be set on the gin context
@@ -20,8 +21,7 @@ func BasicAuth(db *pg.DB, isadmin bool) middleware.BasicAuthValidator {
 			Limit(1).
 			Select()
 		if err != nil {
-			log.Println("User search failed", err)
-			return false, err
+			return false, echo.NewHTTPError(http.StatusUnauthorized, "incorrect user or password")
 		} else {
 			if bcrypt.CompareHashAndPassword([]byte(dbauth.Secret), []byte(password)) != nil {
 				log.Println("password does not match")
@@ -30,6 +30,6 @@ func BasicAuth(db *pg.DB, isadmin bool) middleware.BasicAuthValidator {
 				return true, nil
 			}
 		}
-		return false, nil
+		return false, echo.NewHTTPError(http.StatusUnauthorized, "incorrect user or password")
 	}
 }

@@ -1,0 +1,3 @@
+debian/tmp/usr/bin/sintls-server usr/bin
+debian/sintls-server.conf etc/sintls
+debian/sintls-server.service lib/systemd/system

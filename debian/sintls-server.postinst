@@ -1,0 +1,30 @@
+#!/bin/sh -e
+# Copyright 2001 Alberto Gonzalez Iniesta <agi@agi.as>
+# Modified for Sintls by Laurent Coustet <ed@zehome.com>
+
+test $DEBIAN_SCRIPT_DEBUG && set -v -x
+
+action="$1"
+oldversion="$2"
+
+umask 022
+
+# use debconf
+. /usr/share/debconf/confmodule
+
+
+case "$1" in
+  configure)
+	if ! getent passwd sintls >/dev/null; then
+	  adduser --quiet --system --group --home /var/lib/sintls --shell /usr/sbin/nologin sintls
+	fi
+    chown sintls:sintls -R /var/lib/sintls
+  ;;
+esac
+
+db_stop
+
+#DEBHELPER#
+
+exit 0
+# vim:set ai et sts=2 sw=2 tw=0:

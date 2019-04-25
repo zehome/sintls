@@ -7,9 +7,10 @@ import (
 
 type DNSUpdater interface {
 	SetRecord(fqdn string, fieldtype string, target string) error
-	RemoveRecord(fqdn string, fieldtype string) error
+	RemoveRecords(fqdn string) error
 	ExtractRecordName(fqdn, domain string) string
 	ExtractAuthZone(fqdn string) (string, error)
+	Refresh(fqdn string) error
 }
 
 func NewDNSUpdaterByName(name string) (DNSUpdater, error) {

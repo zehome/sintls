@@ -13,6 +13,10 @@ SinTLS has two parts, both using Lego:
 Quickstart
 ==========
 
+OVH credentials setup
+```shell
+curl -XPOST -H"X-Ovh-Application: ***********" -H "Content-type: application/json" https://eu.api.ovh.com/1.0/auth/credential  -d '{"accessRules": [{"method": "POST", "path": "/domain/zone/clarilab.fr/record/*"}, { "method": "GET", "path": "/domain/zone/clarilab.fr/record/*" }, {"method": "DELETE", "path": "/domain/zone/clarilab.fr/record/*"}, {"method": "POST", "path": "/domain/zone/clarilab.fr/record"}]}'
+```
 
 
 Overview

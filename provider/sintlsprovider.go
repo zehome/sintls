@@ -18,6 +18,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+var UserAgent string
+
 type message struct {
 	Domain      string `json:"domain"`
 	Token       string `json:"token"`
@@ -171,7 +173,7 @@ func (d *Provider) doPost(uri string, msg interface{}) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-
+	req.Header.Set("User-Agent", UserAgent)
 	if len(d.config.Username) > 0 && len(d.config.Password) > 0 {
 		req.SetBasicAuth(d.config.Username, d.config.Password)
 	}

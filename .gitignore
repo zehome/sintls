@@ -1,2 +1,4 @@
-bin/
 dist/
+sintls-server
+sintls-client
+*.log

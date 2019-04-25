@@ -3,6 +3,7 @@ package ovh
 import (
 	"net/http"
 	"fmt"
+	"log"
 	"errors"
 	"strings"
 	"github.com/go-acme/lego/challenge/dns01"
@@ -45,6 +46,10 @@ func NewDefaultConfig() *Config {
 type OVHApi struct {
 	config      *Config
 	client      *ovh.Client
+}
+
+func arrayToString(a []int, delim string) string {
+    return strings.Trim(strings.Replace(fmt.Sprint(a), " ", delim, -1), "[]")
 }
 
 // NewDNSProvider returns a OVHApi instance configured for OVH
@@ -135,34 +140,42 @@ func (api *OVHApi) SetRecord(fqdn, fieldtype, target string) error {
 	if err != nil {
 		return fmt.Errorf("ovh: error when call api to add record (%s): %v", reqURL, err)
 	}
-	refreshReq := map[string]string {"zoneName": authZone}
-	api.client.Post(
-		fmt.Sprintf("/domain/zone/%s/refresh", authZone),
-		&refreshReq, nil)
 	return nil
 }
 
-func (api *OVHApi) RemoveRecord(fqdn string, fieldtype string) error {
-	allowedfieldtypes := map[string]bool {
-		"A": true,
-		"AAAA": true,
-		"CNAME": true,
-	}
-	if ! allowedfieldtypes[fieldtype] {
-		return fmt.Errorf("ovh: fieldtype %s not supported.", fieldtype)
-	}
+func (api *OVHApi) RemoveRecords(fqdn string) error {
 	authZone, err := dns01.FindZoneByFqdn(dns01.ToFqdn(fqdn))
 	if err != nil {
 		return fmt.Errorf("ovh: could not determine zone for domain: '%s'. %s", fqdn, err)
 	}
 	authZone = dns01.UnFqdn(authZone)
 	subDomain := api.ExtractRecordName(fqdn, authZone)
-	reqURL := fmt.Sprintf("/domain/zone/%s/record?fieldType=%s&subDomain=%s",
-		authZone, fieldtype, subDomain)
-	ids := []int{}
-	err = api.client.Get(reqURL, &ids)
+	reqURL := fmt.Sprintf("/domain/zone/%s/record?subDomain=%s", authZone, subDomain)
+	recordids := []int{}
+	err = api.client.Get(reqURL, &recordids)
 	if err != nil {
 		return fmt.Errorf("ovh: error when call api to get record (%s): %v", reqURL, err)
 	}
+	log.Printf("ovh: remove recods on zone=%s subdomain=%s: %s\n", authZone, subDomain, arrayToString(recordids, ","))
+	for _, recordid := range recordids {
+		// log.Printf("ovh: remove record id=%s", recordid)
+		err = api.client.Delete(
+			fmt.Sprintf("/domain/zone/%s/record/%d", authZone, recordid), nil)
+		if err != nil {
+			log.Printf("ovh: unable to remove record %s\n", recordid)
+		}
+	}
 	return nil
+}
+
+func (api *OVHApi) Refresh(fqdn string) error {
+	authZone, err := dns01.FindZoneByFqdn(dns01.ToFqdn(fqdn))
+	if err != nil {
+		return fmt.Errorf("ovh: could not determine zone for domain: '%s'. %s", fqdn, err)
+	}
+	authZone = dns01.UnFqdn(authZone)
+	refreshReq := map[string]string {"zoneName": authZone}
+	return api.client.Post(
+		fmt.Sprintf("/domain/zone/%s/refresh", authZone),
+		&refreshReq, nil)
 }

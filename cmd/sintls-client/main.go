@@ -10,6 +10,7 @@ import (
 
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/urfave/cli"
+	"github.com/zehome/sintls/provider"
 )
 
 var (
@@ -33,7 +34,7 @@ func main() {
 	app.Commands = CreateCommands()
 
 	selfupdate.EnableLog()
-
+	sintlsprovider.UserAgent = fmt.Sprintf("sintls/%s", version)
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)

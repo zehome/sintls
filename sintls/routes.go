@@ -29,6 +29,9 @@ func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdate
 		log.Printf("sintls: update host failed: %s", err)
 		return
 	}
+	// Remove previous entries
+	dnsupdater.RemoveRecords(req.Domain)
+
 	// Update DNS records
 	if len(req.TargetA) != 0 {
 		err = dnsupdater.SetRecord(req.Domain, "A", req.TargetA.String())
@@ -48,6 +51,7 @@ func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdate
 		err = dnsupdater.SetRecord(req.Domain, "CNAME", req.TargetCNAME)
 		return
 	}
+	dnsupdater.Refresh(req.Domain)
 	return
 }
 

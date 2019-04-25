@@ -1,0 +1,18 @@
+[Unit]
+Description=SinTLS server
+Requires=sintls-server.socket
+After=syslog.target network.target postgresql.service
+
+[Service]
+EnvironmentFile=/etc/sintls/sintls-server.conf
+ExecStart=/usr/bin/sintls-server
+WorkingDirectory=/var/lib/sintls
+KillMode=process
+Restart=on-failure
+RestartSec=10s
+User=sintls
+Group=sintls
+NonBlocking=true
+
+[Install]
+WantedBy=multi-user.target
