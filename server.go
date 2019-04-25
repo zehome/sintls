@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"io"
 	"path"
 	"strings"
 )
@@ -34,15 +35,10 @@ func main() {
 		"logfile", path.Join(os.Getenv("HOME"), "sintls.log"),
 		"sintls log")
 	debug := flag.Bool("debug", false, "enable debug mode")
+	quiet := flag.Bool("quiet", false, "quiet mode does not print anything on the console after initialization")
 	initdb := flag.Bool("initdb", false, "initialize database")
 	flag.Parse()
-
-	log.SetOutput(&lumberjack.Logger{
-	    Filename:   *logfile,
-	    MaxSize:    10,
-	    MaxBackups: 5,
-	    Compress:   true,
-	})
+	log.SetOutput(os.Stdout)
 
 	var dbaddr string
 	var dbnetwork string
@@ -66,6 +62,10 @@ func main() {
 		*initdb,
 		true,
 	)
+	if err != nil {
+		log.Fatal("OpenDB failed: ", err)
+		return
+	}
 
 	// CLI
 	if flag.NArg() >= 1 {
@@ -74,14 +74,29 @@ func main() {
 	}
 
 	// Server mode
+	if len(*providername) == 0 {
+		log.Fatal("-provider is mandatory")
+		return
+	}
+	logger := &lumberjack.Logger{
+	    Filename:   *logfile,
+	    MaxSize:    10,
+	    MaxBackups: 5,
+	    Compress:   true,
+	}
+	if ! *quiet {
+		log.SetOutput(io.MultiWriter(os.Stdout, logger))
+	} else {
+		log.SetOutput(logger)
+	}
+
 	if err != nil {
-		log.Fatal("Unable to open database", err)
+		log.Fatal("Unable to open database: ", err)
 	}
 	defer db.Close()
 	if *initdb == true {
 		return
 	}
-
 
 	// get lego acme provider
 	provider, err := dns.NewDNSChallengeProviderByName(*providername)
