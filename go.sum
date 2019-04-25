@@ -132,6 +132,8 @@ github.com/go-pg/migrations v6.7.2+incompatible h1:6s+eTUAbnrbIy8SuieqmwQzg8GJwQ
 github.com/go-pg/migrations v6.7.2+incompatible/go.mod h1:DtFiob3rFxsj0He8fye6Ta4eukFW80IfdY10zb2yH1c=
 github.com/go-pg/migrations v6.7.3+incompatible h1:mKayeWTNGhYA9P9wzZNSDoumJRhfB4fEmfAlxNTVwtA=
 github.com/go-pg/migrations v6.7.3+incompatible/go.mod h1:DtFiob3rFxsj0He8fye6Ta4eukFW80IfdY10zb2yH1c=
+github.com/go-pg/migrations v6.7.4-0.20190416172638-348a4f943ff4+incompatible h1:wRbuVtcrnNfuLXZstTatPMvKIsVDivfmhQd4RUxw8c4=
+github.com/go-pg/migrations v6.7.4-0.20190416172638-348a4f943ff4+incompatible/go.mod h1:DtFiob3rFxsj0He8fye6Ta4eukFW80IfdY10zb2yH1c=
 github.com/go-pg/pg v8.0.2+incompatible h1:NC4501uF2oyRDRaLAIqiVARJ+LFDguCyWbfjOBXbDNI=
 github.com/go-pg/pg v8.0.2+incompatible/go.mod h1:a2oXow+aFOrvwcKs3eIA0lNFmMilrxK2sOkB5NWe0vA=
 github.com/go-pg/pg v8.0.4+incompatible h1:mNnhnAf6xtMNG0eNCAzBcBelIZvkGa99xJ+qBylZVJA=

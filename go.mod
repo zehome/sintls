@@ -23,7 +23,7 @@ require (
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-acme/lego v2.5.0+incompatible
 	github.com/go-ini/ini v1.42.0 // indirect
-	github.com/go-pg/migrations v6.7.3+incompatible
+	github.com/go-pg/migrations v6.7.4-0.20190416172638-348a4f943ff4+incompatible
 	github.com/go-pg/pg v8.0.4+incompatible
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/gophercloud/gophercloud v0.0.0-20190424031112-b9b92a825806 // indirect
