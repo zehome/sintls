@@ -1,8 +1,6 @@
 Simple INternal TLS
 ===================
 
-[![Build Status](https://travis-ci.org/zehome/sintls.svg?branch=master)](https://travis-ci.org/zehome/sintls)
-
 This projects has a goal to provide let's encrypt x509 certificates to
 hosts not reachable from the internet, with limited internet access.
 
@@ -51,6 +49,12 @@ systemctl enable sintls-server.socket
 # Create a new user
 sudo -Hu sintls sintls-server adduser
 ```
+
+Sintls-server is configured to listen on port 443, using systemd socket activation.
+
+If SINTLS_ENABLETLS is set in /etc/sintls/sintls-server.conf, then golang's
+acme/autocert is used to retrieve a valid TLS certificate on first request.
+
 
 Client
 ------
