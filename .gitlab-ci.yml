@@ -1,0 +1,22 @@
+image: clarisys/gitlabci:buster
+
+package:
+  before_script:
+    - sudo apt-get -qy update && sudo apt-get -qy install dh-golang git-buildpackage golang-1.11 golang-go
+  script:
+    - make
+    - "[ -d dist ] || mkdir dist"
+    - mv sintls-client dist/sintls-client_linux_amd64
+    - mv sintls-server dist/sintls-server_linux_amd64
+    - sha256sum dist/sintls-client_linux_amd64 > dist/sintls-client_linux_amd64.sha256
+    - sha256sum dist/sintls-server_linux_amd64 > dist/sintls-server_linux_amd64.sha256
+    - GO111MODULE=on GOCACHE=/tmp/gocache GBP_CONF_FILES=:debian/gbp.conf gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-purge --git-export-dir=tmp --git-tarball-dir=/nonexistant --git-builder='dpkg-buildpackage -d --no-sign'
+    - cp tmp/*.deb dist/
+  tags: ["linux"]
+  artifacts:
+    paths:
+      - tmp/*.deb
+      - tmp/*.changes
+      - tmp/*.tar.*
+      - tmp/*.dsc
+      - tmp/sintls-*_linux_amd64
