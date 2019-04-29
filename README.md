@@ -13,9 +13,57 @@ SinTLS has two parts, both using Lego:
 Quickstart
 ==========
 
-OVH credentials setup
+Server
+------
+
 ```shell
-curl -XPOST -H"X-Ovh-Application: ***********" -H "Content-type: application/json" https://eu.api.ovh.com/1.0/auth/credential  -d '{"accessRules": [{"method": "POST", "path": "/domain/zone/clarilab.fr/record/*"}, { "method": "GET", "path": "/domain/zone/clarilab.fr/record/*" }, {"method": "DELETE", "path": "/domain/zone/clarilab.fr/record/*"}, {"method": "POST", "path": "/domain/zone/clarilab.fr/record"}]}'
+# Install PostgreSQL database
+apt install postgresql-11
+
+# Create postgresql credentials
+sudo -Hu postgres createuser sintls
+sudo -Hu postgres createdb sintls -O sintls
+
+# Install sintls-server
+dpkg -i sintls-server*.deb
+
+# Setup OVH API access credentials
+# This setup is for "clarilab.fr" domain
+curl -XPOST https://eu.api.ovh.com/1.0/auth/credential \
+  -H"X-Ovh-Application: ***********" \
+  -H "Content-type: application/json" \
+  -d @- << EOF
+{"accessRules": [
+  {"method": "POST", "path": "/domain/zone/clarilab.fr/record/*"},
+  {"method": "GET", "path": "/domain/zone/clarilab.fr/record/*" },
+  {"method": "DELETE", "path": "/domain/zone/clarilab.fr/record/*"},
+  {"method": "POST", "path": "/domain/zone/clarilab.fr/record"},
+  {"method": "GET", "path": "/domain/zone/clarilab.fr/record"}
+]}
+EOF
+# Validate the credentials on the web interface as this command tells you
+
+# Copy your API informations to /etc/sintls/sintls-server.conf
+
+# Start sintls socket listener using SystemD
+systemctl enable sintls-server.socket
+
+# Create a new user
+sudo -Hu sintls sintls-server adduser
+```
+
+Client
+------
+
+```shell
+dpkg -i sintls-client*.deb
+
+# Use your credentials to get a new certificate
+SINTLS_USERNAME=**** SINTLS_PASSWORD=**** sintls-client --email xxx@xxx.fr -d ***.subdomain.fr \
+  --ca-server https://acme-staging-v02.api.letsencrypt.org/directory \
+  --target-a 10.31.254.20 run
+
+# use the renew command to renew instead of create
 ```
 
 
