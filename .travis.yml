@@ -4,6 +4,7 @@ go:
 
 script:
 - make
+- "[ -d dist ] || mkdir dist"
 - mv sintls-client dist/sintls-client_linux_amd64
 - mv sintls-server dist/sintls-server_linux_amd64
 - sha256sum dist/sintls-client_linux_amd64 > dist/sintls-client_linux_amd64.sha256
