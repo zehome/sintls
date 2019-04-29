@@ -36,6 +36,7 @@ curl -XPOST https://eu.api.ovh.com/1.0/auth/credential \
   {"method": "GET", "path": "/domain/zone/clarilab.fr/record/*" },
   {"method": "DELETE", "path": "/domain/zone/clarilab.fr/record/*"},
   {"method": "POST", "path": "/domain/zone/clarilab.fr/record"},
+  {"method": "POST", "path": "/domain/zone/clarilab.fr/refresh"},
   {"method": "GET", "path": "/domain/zone/clarilab.fr/record"}
 ]}
 EOF

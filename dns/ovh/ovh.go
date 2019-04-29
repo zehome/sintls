@@ -174,8 +174,9 @@ func (api *OVHApi) Refresh(fqdn string) error {
 		return fmt.Errorf("ovh: could not determine zone for domain: '%s'. %s", fqdn, err)
 	}
 	authZone = dns01.UnFqdn(authZone)
-	refreshReq := map[string]string {"zoneName": authZone}
-	return api.client.Post(
-		fmt.Sprintf("/domain/zone/%s/refresh", authZone),
-		&refreshReq, nil)
+	err = api.client.Post(fmt.Sprintf("/domain/zone/%s/refresh", authZone), nil, nil)
+	if err != nil {
+		log.Printf("ovh: Refresh %s failed: %s\n", authZone, err)
+	}
+	return err
 }
