@@ -68,6 +68,8 @@ SINTLS_USERNAME=**** SINTLS_PASSWORD=**** sintls-client --email xxx@xxx.fr -d **
   --target-a 10.31.254.20 run
 
 # use the renew command to renew instead of create
+
+# Your certificates are stored in ~/.config/sintls/certificates/
 ```
 
 
