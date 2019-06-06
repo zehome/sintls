@@ -165,6 +165,8 @@ github.com/labstack/gommon v0.2.8 h1:JvRqmeZcfrHC5u6uVleB4NxxNbzx6gpbJiQknDbKQu0
 github.com/labstack/gommon v0.2.8/go.mod h1:/tj9csK2iPSBvn+3NLM9e52usepMtrd5ilFYA+wQNJ4=
 github.com/linode/linodego v0.7.1 h1:4WZmMpSA2NRwlPZcc0+4Gyn7rr99Evk9bnr0B3gXRKE=
 github.com/linode/linodego v0.7.1/go.mod h1:ga11n3ivecUrPCHN0rANxKmfWBJVkOXfLMZinAbj2sY=
+github.com/logrusorgru/aurora v0.0.0-20190428105938-cea283e61946 h1:z+WaKrgu3kCpcdnbK9YG+JThpOCd1nU5jO5ToVmSlR4=
+github.com/logrusorgru/aurora v0.0.0-20190428105938-cea283e61946/go.mod h1:7rIyQOR62GCctdiQpZ/zOJlFyk6y+94wXzv6RNZgaR4=
 github.com/mattn/go-colorable v0.0.9 h1:UVL0vNpWh04HeJXV0KLcaT7r06gOH2l4OW6ddYRUIY4=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
@@ -357,6 +359,8 @@ google.golang.org/grpc v1.19.1 h1:TrBcJ1yqAl1G++wO39nD/qtgpsW9/1+QGrluyMGEYgM=
 google.golang.org/grpc v1.19.1/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 gopkg.in/AlecAivazis/survey.v1 v1.8.3 h1:uf8V0NkfqJkwWF9mWziv/xkpVc31xgwftG7mXU7udHk=
 gopkg.in/AlecAivazis/survey.v1 v1.8.3/go.mod h1:iBNOmqKz/NUbZx3bA+4hAGLRC7fSK7tgtVDT4tB22XA=
+gopkg.in/AlecAivazis/survey.v1 v1.8.5 h1:QoEEmn/d5BbuPIL2qvXwzJdttFFhRQFkaq+tEKb7SMI=
+gopkg.in/AlecAivazis/survey.v1 v1.8.5/go.mod h1:iBNOmqKz/NUbZx3bA+4hAGLRC7fSK7tgtVDT4tB22XA=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 h1:qIbj1fsPNlZgppZ+VLlY7N33q108Sa+fhmuc+sWQYwY=

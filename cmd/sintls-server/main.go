@@ -100,6 +100,7 @@ func main() {
 		"lego DNS provider name")
 	debug := flag.Bool("debug", false, "enable debug mode")
 	initdb := flag.Bool("initdb", false, "initialize database")
+	disable_colors := flag.Bool("disable-colors", false, "disable colors")
 	flag.Parse()
 	log.SetOutput(os.Stdout)
 
@@ -132,7 +133,7 @@ func main() {
 
 	// CLI
 	if flag.NArg() >= 1 {
-		RunCLI(db, flag.Args())
+		RunCLI(db, *disable_colors, flag.Args())
 		return
 	}
 

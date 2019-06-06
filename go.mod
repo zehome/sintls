@@ -36,6 +36,7 @@ require (
 	github.com/kolo/xmlrpc v0.0.0-20190417161013-de6d879202d7 // indirect
 	github.com/labstack/echo/v4 v4.0.0
 	github.com/linode/linodego v0.7.1 // indirect
+	github.com/logrusorgru/aurora v0.0.0-20190428105938-cea283e61946
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/miekg/dns v1.1.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -57,7 +58,7 @@ require (
 	github.com/valyala/fasttemplate v1.0.1 // indirect
 	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c
 	golang.org/x/net v0.0.0-20190311183353-d8887717615a
-	gopkg.in/AlecAivazis/survey.v1 v1.8.3
+	gopkg.in/AlecAivazis/survey.v1 v1.8.5
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/ns1/ns1-go.v2 v2.0.0-20190322154155-0dafb5275fd1 // indirect
