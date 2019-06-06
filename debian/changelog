@@ -1,3 +1,9 @@
+sintls (1.1.2-1) unstable; urgency=medium
+
+  * Add CLI command to remove users
+
+ -- Laurent Coustet <laurent.coustet@clarisys.fr>  Thu, 06 Jun 2019 16:50:36 +0200
+
 sintls (1.1.1-1) unstable; urgency=medium
 
   * Initial release.
