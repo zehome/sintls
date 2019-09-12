@@ -76,7 +76,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 		return
 	}
 	if CheckArg(args[0], "h") {
-		fmt.Println("commands: help, adduser, deluser, list [authorization,subdomain,host]")
+		fmt.Println("commands: help, adduser, deluser, list [authorization,subdomain,host], stat")
 	} else if CheckArg(args[0], "a") {
 		adduser_anwsers := struct {
 			Name      string
@@ -271,6 +271,39 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			}
 			fmt.Println("Hosts:")
 			t.Print()
+		}
+	} else if CheckArg(args[0], "stat") {
+		var hosts []sintls.Host
+		err := db.Model(&hosts).Column(
+			"host.name",
+			"host.updated_at",
+			"host.dns_target_a",
+			"host.dns_target_aaaa",
+			"host.dns_target_cname",
+			"SubDomain",
+			"SubDomain.Authorization").
+			Order("sub_domain__authorization.name ASC").
+			Order("sub_domain.name ASC").
+			Order("host.name ASC").Select()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		for _, host := range hosts {
+			expires := (time.Hour * 24 * 90) - time.Now().Sub(host.UpdatedAt)
+			// This is influxdb line protocol
+			// Might be missing some escape sequences, be carefull with hostnames & such
+			fmt.Printf(
+				"sintls,username=%s,subdomain=%s,hostname=%s,target_a=%s,target_aaaa=%s,target_cname=%s expire_days=%di %d\n",
+				host.SubDomain.Authorization.Name,
+				host.SubDomain.Name,
+				host.Name,
+				host.DnsTargetA,
+				host.DnsTargetAAAA,
+				host.DnsTargetCNAME,
+				int(expires.Hours() / 24),
+				time.Now().UnixNano(),
+			)
 		}
 	} else {
 		log.Println("unknown command")
