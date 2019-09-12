@@ -293,14 +293,22 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			expires := (time.Hour * 24 * 90) - time.Now().Sub(host.UpdatedAt)
 			// This is influxdb line protocol
 			// Might be missing some escape sequences, be carefull with hostnames & such
+			tags := []string{}
+			tags = append(tags, fmt.Sprintf("username=%s", host.SubDomain.Authorization.Name))
+			tags = append(tags, fmt.Sprintf("subdomain=%s", host.SubDomain.Name))
+			tags = append(tags, fmt.Sprintf("hostname=%s", host.Name))
+			if host.DnsTargetA != nil {
+				tags = append(tags, fmt.Sprintf("target_a=%s", host.DnsTargetA))
+			}
+			if host.DnsTargetAAAA != nil {
+				tags = append(tags, fmt.Sprintf("target_aaaa=%s", host.DnsTargetAAAA))
+			}
+			if len(host.DnsTargetCNAME) > 0 {
+				tags = append(tags, fmt.Sprintf("target_cname=%s", host.DnsTargetCNAME))
+			}
 			fmt.Printf(
-				"sintls,username=%s,subdomain=%s,hostname=%s,target_a=%s,target_aaaa=%s,target_cname=%s expire_days=%di %d\n",
-				host.SubDomain.Authorization.Name,
-				host.SubDomain.Name,
-				host.Name,
-				host.DnsTargetA,
-				host.DnsTargetAAAA,
-				host.DnsTargetCNAME,
+				"sintls,%s expire_days=%di %d\n",
+				strings.Join(tags, ","),
 				int(expires.Hours() / 24),
 				time.Now().UnixNano(),
 			)

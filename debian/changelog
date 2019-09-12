@@ -1,3 +1,8 @@
+sintls (1.2.2-1) unstable; urgency=medium
+  * Fix influxdb line protocol does not supports empty tags.
+
+ -- Laurent Coustet <laurent.coustet@clarisys.fr>  Thu, 12 Sep 2019 15:53:08 +0200
+
 sintls (1.2.1-1) unstable; urgency=medium
   * Fix go mod dependencies
 
