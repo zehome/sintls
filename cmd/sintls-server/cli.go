@@ -164,7 +164,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			t := tabby.New()
 			t.AddHeader("Username", "SubDomain", "Name", "A", "AAAA", "CNAME", "UpdatedAt", "Expires")
 			for _, row := range hosts {
-				expires := time.Now().Add(90 * 24 * time.Hour).Sub(row.UpdatedAt)
+				expires := (time.Hour * 24 * 90) - time.Now().Sub(row.UpdatedAt)
 				t.AddLine(
 					row.SubDomain.Authorization.Name,
 					row.SubDomain.Name,
@@ -257,7 +257,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			t := tabby.New()
 			t.AddHeader("Username", "SubDomain", "Name", "A", "AAAA", "CNAME", "UpdatedAt", "Expires")
 			for _, row := range hosts {
-				expires := time.Now().Add(90 * 24 * time.Hour).Sub(row.UpdatedAt)
+				expires := (time.Hour * 24 * 90) - time.Now().Sub(row.UpdatedAt)
 				t.AddLine(
 					row.SubDomain.Authorization.Name,
 					row.SubDomain.Name,
