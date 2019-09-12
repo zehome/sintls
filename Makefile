@@ -1,4 +1,3 @@
-GOGET=go get -u
 GOFLAGS=GOOS=linux GOARCH=amd64 CGO_ENABLED=0
 VERSION := $(shell git describe --tags --always --dirty="-dev")
 
