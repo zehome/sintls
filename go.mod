@@ -31,3 +31,6 @@ replace github.com/h2non/gock => gopkg.in/h2non/gock.v1 v1.0.14
 
 // Otherwise, the build will fail in dh_golang
 replace google.golang.org/api => google.golang.org/api v0.3.0
+
+// git.apache.org does not exists
+replace git.apache.org/thrift.git => github.com/apache/thrift v0.12.0
