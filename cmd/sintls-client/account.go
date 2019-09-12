@@ -3,7 +3,7 @@ package main
 import (
 	"crypto"
 
-	"github.com/go-acme/lego/registration"
+	"github.com/go-acme/lego/v3/registration"
 )
 
 // Account represents a users local saved credentials

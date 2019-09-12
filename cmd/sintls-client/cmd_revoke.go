@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/go-acme/lego/log"
+	"github.com/go-acme/lego/v3/log"
 	"github.com/urfave/cli"
 )
 

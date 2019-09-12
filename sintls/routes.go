@@ -2,7 +2,7 @@ package sintls
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/go-acme/lego/challenge"
+	"github.com/go-acme/lego/v3/challenge"
 	"github.com/go-pg/pg"
 	"github.com/zehome/sintls/dns"
 	"log"

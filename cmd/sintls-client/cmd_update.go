@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/blang/semver"
-	"github.com/go-acme/lego/log"
+	"github.com/go-acme/lego/v3/log"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/urfave/cli"
 	"os"

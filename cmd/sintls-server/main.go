@@ -7,7 +7,7 @@ import (
 	"github.com/coreos/go-systemd/activation"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/go-acme/lego/providers/dns"
+	"github.com/go-acme/lego/v3/providers/dns"
 	"github.com/go-pg/pg"
 	"golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
