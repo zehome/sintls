@@ -28,6 +28,9 @@ func main() {
 	cli.VersionPrinter = func(c *cli.Context) {
 		fmt.Printf("sintls version %s %s/%s\n", c.App.Version, runtime.GOOS, runtime.GOARCH)
 	}
+	if usr.HomeDir == nil {
+		log.Fatal("Unable to determine home directory. Is USER environment variable defined?")
+	}
 	defaultPath := filepath.Join(usr.HomeDir, ".config", "sintls")
 	app.Flags = CreateFlags(defaultPath)
 	app.Before = Before
