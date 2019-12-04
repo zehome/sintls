@@ -9,7 +9,7 @@ binary:
     - mv sintls-server sintls-server_linux_amd64
     - sha256sum sintls-client_linux_amd64 > sintls-client_linux_amd64.sha256
     - sha256sum sintls-server_linux_amd64 > sintls-server_linux_amd64.sha256
-  tags: ["linux"]
+  tags: ["linux2"]
   artifacts:
     paths:
       - sintls-*_linux_amd64
@@ -17,14 +17,14 @@ binary:
 
 debian_package:
   variables:
-    GOPROXY: https://proxy.golang.org
-    GO111MODULE: on
-    GOCACHE: /tmp/gocache
+    GOPROXY: "https://proxy.golang.org"
+    GO111MODULE: "on"
+    GOCACHE: "/tmp/gocache"
   script:
     - git status
     - git branch -a
     - gbp buildpackage
-  tags: ["linux"]
+  tags: ["linux2"]
   artifacts:
     paths:
       - tmp/*.deb
