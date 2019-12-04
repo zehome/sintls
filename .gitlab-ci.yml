@@ -1,6 +1,6 @@
-image: clarisys/gitlabci:buster
+image: registry.clarisys.fr/adm/sintls:latest
 before_script:
-  - sudo apt-get -qy update && sudo apt-get -qy install dh-golang git-buildpackage golang-1.11 golang-go
+  - sudo apt-get -qy update && sudo apt-get -qy install dh-golang golang-1.13 golang-go
 
 binary:
   script:
@@ -16,10 +16,14 @@ binary:
       - sintls-*_linux_amd64.sha256
 
 debian_package:
+  variables:
+    GOPROXY: https://proxy.golang.org
+    GO111MODULE: on
+    GOCACHE: /tmp/gocache
   script:
     - git status
     - git branch -a
-    - GO111MODULE=on GOCACHE=/tmp/gocache gbp buildpackage
+    - gbp buildpackage
   tags: ["linux"]
   artifacts:
     paths:

@@ -13,7 +13,7 @@ import (
 
 // Record a DNS record
 type Record struct {
-	ID        int    `json:"id,omitempty"`
+	ID        int64  `json:"id,omitempty"`
 	FieldType string `json:"fieldType,omitempty"`
 	SubDomain string `json:"subDomain,omitempty"`
 	Target    string `json:"target,omitempty"`
@@ -48,7 +48,7 @@ type OVHApi struct {
 	client      *ovh.Client
 }
 
-func arrayToString(a []int, delim string) string {
+func arrayToString(a []int64, delim string) string {
     return strings.Trim(strings.Replace(fmt.Sprint(a), " ", delim, -1), "[]")
 }
 
@@ -151,7 +151,7 @@ func (api *OVHApi) RemoveRecords(fqdn string) error {
 	authZone = dns01.UnFqdn(authZone)
 	subDomain := api.ExtractRecordName(fqdn, authZone)
 	reqURL := fmt.Sprintf("/domain/zone/%s/record?subDomain=%s", authZone, subDomain)
-	recordids := []int{}
+	recordids := []int64{}
 	err = api.client.Get(reqURL, &recordids)
 	if err != nil {
 		return fmt.Errorf("ovh: error when call api to get record (%s): %v", reqURL, err)
