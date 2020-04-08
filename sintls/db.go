@@ -1,10 +1,11 @@
 package sintls
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	"github.com/go-pg/migrations"
-	"github.com/go-pg/pg"
+	"github.com/go-pg/migrations/v7"
+	"github.com/go-pg/pg/v9"
 	"log"
 	"net"
 	"strings"
@@ -12,13 +13,13 @@ import (
 )
 
 type Authorization struct {
-	tableName       struct{}     `sql:"sintls_authorization"`
-	AuthorizationId uint64       `sql:"authorization_id,pk"`
-	CreatedAt       time.Time    `sql:"created_at,notnull,default:now()"`
-	UpdatedAt       time.Time    `sql:"updated_at,notnull,default:now()"`
-	Name            string       `sql:"name,notnull,unique"`
-	Secret          string       `sql:"secret,notnull"`
-	Admin           sql.NullBool `sql:"admin,notnull,default:false"`
+	tableName       struct{}     `pg:"sintls_authorization"`
+	AuthorizationId uint64       `pg:"authorization_id,pk"`
+	CreatedAt       time.Time    `pg:"created_at,notnull,default:now()"`
+	UpdatedAt       time.Time    `pg:"updated_at,notnull,default:now()"`
+	Name            string       `pg:"name,notnull,unique"`
+	Secret          string       `pg:"secret,notnull"`
+	Admin           sql.NullBool `pg:"admin,notnull,default:false"`
 }
 
 func (a Authorization) String() string {
@@ -28,15 +29,15 @@ func (a Authorization) String() string {
 func (a *Authorization) CanUseHost(db *pg.DB, host string) bool {
 	// Get subdomain
 	subdomain := strings.Join(strings.Split(host, ".")[1:], ".")
-	log.Println("host: ", host, "subdomain: ", subdomain, "a.Name: ", a.Name)
+	log.Println("host:", host, "subdomain:", subdomain, "a.Name:", a.Name)
 	var subdomains []SubDomain
 	count, err := db.Model(&subdomains).
-		Column("Authorization").
+		Relation("Authorization").
 		Where(`"authorization".name = ?`, a.Name).
 		Where(`"sub_domain".name = ?`, subdomain).
 		Count()
 	if err != nil {
-		log.Println("Count error: ", err)
+		log.Println("Count error:", err)
 		return false
 	}
 	return count > 0
@@ -97,34 +98,38 @@ func (a *Authorization) CreateOrUpdateHost(
 }
 
 type SubDomain struct {
-	tableName       struct{}  `sql:"sintls_subdomain"`
-	SubDomainId     uint64    `sql:"subdomain_id,pk"`
-	CreatedAt       time.Time `sql:"created_at,notnull,default:now()"`
-	UpdatedAt       time.Time `sql:"updated_at,notnull,default:now()"`
+	tableName       struct{}  `pg:"sintls_subdomain"`
+	SubDomainId     uint64    `pg:"subdomain_id,pk"`
+	CreatedAt       time.Time `pg:"created_at,notnull,default:now()"`
+	UpdatedAt       time.Time `pg:"updated_at,notnull,default:now()"`
 	Authorization   *Authorization
-	AuthorizationId uint64 `sql:"authorization_id,notnull,on_delete:CASCADE"`
-	Name            string `sql:"name,notnull,unique"`
+	AuthorizationId uint64 `pg:"authorization_id,notnull,on_delete:CASCADE"`
+	Name            string `pg:"name,notnull,unique"`
 }
 
 type Host struct {
-	tableName      struct{}  `sql:"sintls_host"`
-	HostId         uint64    `sql:"host_id,pk"`
-	CreatedAt      time.Time `sql:"created_at,notnull,default:now()"`
-	UpdatedAt      time.Time `sql:"updated_at,notnull,default:now()"`
+	tableName      struct{}  `pg:"sintls_host"`
+	HostId         uint64    `pg:"host_id,pk"`
+	CreatedAt      time.Time `pg:"created_at,notnull,default:now()"`
+	UpdatedAt      time.Time `pg:"updated_at,notnull,default:now()"`
 	SubDomain      *SubDomain
-	SubDomainId    uint64 `sql:"subdomain_id,notnull,on_delete:CASCADE"`
-	Name           string `sql:"name,notnull"`
-	DnsTargetA     net.IP `sql:"dns_target_a"`
-	DnsTargetAAAA  net.IP `sql:"dns_target_aaaa"`
-	DnsTargetCNAME string `sql:"dns_target_cname"`
+	SubDomainId    uint64 `pg:"subdomain_id,notnull,on_delete:CASCADE"`
+	Name           string `pg:"name,notnull"`
+	DnsTargetA     net.IP `pg:"dns_target_a"`
+	DnsTargetAAAA  net.IP `pg:"dns_target_aaaa"`
+	DnsTargetCNAME string `pg:"dns_target_cname"`
 }
 
-type dbLogger struct{}
+type dbLogger struct {
+}
 
-func (d dbLogger) BeforeQuery(q *pg.QueryEvent) {}
+func (d dbLogger) BeforeQuery(c context.Context, q *pg.QueryEvent) (context.Context, error) {
+	return c, nil
+}
 
-func (d dbLogger) AfterQuery(q *pg.QueryEvent) {
+func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) error {
 	log.Println(q.FormattedQuery())
+	return nil
 }
 
 func OpenDB(options *pg.Options, debug bool, initdb bool, runmigrations bool) (db *pg.DB, err error) {

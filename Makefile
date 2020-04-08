@@ -1,18 +1,23 @@
-GOFLAGS=GOOS=linux GOARCH=amd64 CGO_ENABLED=0
+PLATFORMS := client/darwin/amd64 server/darwin/amd64 client/linux/amd64 server/linux/amd64 client/windows/amd64
 VERSION := $(shell git describe --tags --always --dirty="-dev")
-GO=go
+GO := go
+GOFLAGS = CGO_ENABLED=0
 
-all: cmd/sintls-server cmd/sintls-client
+temp = $(subst /, ,$@)
+part = $(word 1, $(temp))
+os = $(word 2, $(temp))
+arch = $(word 3, $(temp))
+
+all: client/linux/amd64 server/linux/amd64
+release: $(PLATFORMS)
 
 dockerci:
-	docker build -t registry.clarisys.fr/adm/sintls . -f ci/Dockerfile --pull
+	docker build -t zehome/sintls:latest . -f ci/Dockerfile --pull
 
 version:
 	@echo ${VERSION}
 
-cmd/sintls-server:
-	$(GOFLAGS) $(GO) build -ldflags='-s -w -X "main.version=${VERSION}"' ./$@
-cmd/sintls-client:
-	$(GOFLAGS) $(GO) build -ldflags='-s -w -X "main.version=${VERSION}"' ./$@
+$(PLATFORMS):
+	$(GOFLAGS) GOOS=$(os) GOARCH=$(arch) $(GO) build -ldflags='-s -w -X "main.version=${VERSION}"' -o 'sintls-$(part)_$(os)_$(arch)' ./cmd/sintls-$(part)
 
-.PHONY: cmd/sintls-server cmd/sintls-client version
+.PHONY: $(PLATFORMS)

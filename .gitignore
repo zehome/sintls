@@ -1,4 +1,5 @@
 dist/
-sintls-server
-sintls-client
+sintls-server_*
+sintls-client_*
 *.log
+tmp/

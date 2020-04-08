@@ -1,12 +1,12 @@
 package sintls
 
 import (
-	"github.com/labstack/echo/v4"
+	"fmt"
 	"github.com/go-acme/lego/v3/challenge"
-	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/v9"
+	"github.com/labstack/echo/v4"
 	"github.com/zehome/sintls/dns"
 	"log"
-	"fmt"
 	"net"
 	"net/http"
 )
@@ -82,7 +82,7 @@ func UpdateDNSRecords(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "update dnsrecords failed")
 	}
 	if err := tx.Commit(); err != nil {
-		log.Printf("sintls: tx.Commit() failed: ", err)
+		log.Printf("sintls: tx.Commit() failed:", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "commit failed")
 	} else {
 		return c.String(http.StatusOK, "success")
@@ -113,7 +113,7 @@ func LegoPresent(c echo.Context) error {
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("sintls: db.Begin() failed", err)
+		log.Printf("sintls: db.Begin() failed:", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "begin failed")
 	}
 

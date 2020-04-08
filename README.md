@@ -8,6 +8,11 @@ SinTLS has two parts, both using Lego:
   - Server (Handle DNS updates and ACME-DNS)
   - Client (Asks and manage certificates)
 
+
+Supported DNS providers:
+  - rfc2136
+  - ovh
+
 Quickstart
 ==========
 
@@ -16,7 +21,7 @@ Server
 
 ```shell
 # Install PostgreSQL database
-apt install postgresql-11
+apt install postgresql-12
 
 # Create postgresql credentials
 sudo -Hu postgres createuser sintls
@@ -79,19 +84,19 @@ Overview
 
 ```text
 
-                                                                  +-----------------------+-------------+
-                                                                  | subdomain             | credentials |
+                                                                  +--------------------------+-------------+
+                                                                  | subdomain                | credentials |
                                                                   +-------------------------------------+
-                                              +-----------+       | mca.abo.c.clarilab.fr | abocred     |
-                                              | PostgreSQL| ----> |                       |             |
-                                              +-----+-----+       +-----------------------+-------------+
+                                              +-----------+       | laurent.dev.bluemind.net | abocred     |
+                                              | PostgreSQL| ----> |                          |             |
+                                              +-----+-----+       +--------------------------+-------------+
                                                     ^
                                                     |
                                                     |
                                                     |
-+----------------+ <--- Lego / ACME-httpreq ---> +--+-------------+ <--- Lego / ACME auth ---> +-------+
-|internal server |                               |auth.clarilab.fr|                            |OVH DNS|
-+----------------+ +---   Ask CERTIFICAT    ---> +----------------+ +--- Create A records ---> +-------+
++----------------+ <--- Lego / ACME-httpreq ---> +--+-------------+ <--- Lego / ACME auth ---> +--------------+
+|internal server |                               |dev.bluemind.net|                            | DNS provider |
++----------------+ +---   Ask CERTIFICAT    ---> +----------------+ +--- Create A records ---> +--------------+
 
 ```
 

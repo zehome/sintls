@@ -1,24 +1,24 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"fmt"
-	"crypto/tls"
 	"github.com/coreos/go-systemd/activation"
+	"github.com/go-acme/lego/v3/providers/dns"
+	"github.com/go-pg/pg/v9"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/go-acme/lego/v3/providers/dns"
-	"github.com/go-pg/pg"
 	"golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
+	"io"
 	"log"
 	"log/syslog"
 	"net/http"
 	"os"
-	"io"
 	"path"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 import (
@@ -142,8 +142,8 @@ func main() {
 		log.Fatal("-provider is mandatory")
 		return
 	}
-    logwriter, err := syslog.New(syslog.LOG_NOTICE, "sintls")
-    // during initialization, we do provide informations on Stdout
+	logwriter, err := syslog.New(syslog.LOG_NOTICE, "sintls")
+	// during initialization, we do provide informations on Stdout
 	log.SetOutput(io.MultiWriter(os.Stdout, logwriter))
 
 	if err != nil {
@@ -196,7 +196,7 @@ func main() {
 	// admin.DELETE("/auth", sintls.DeleteAuth)
 
 	// Ok, now we log everything using syslog
-	if ! *debug {
+	if !*debug {
 		log.SetOutput(logwriter)
 	}
 
@@ -223,7 +223,7 @@ func main() {
 		}
 		e.Logger.Fatal(e.StartServer(e.TLSServer))
 	} else {
-		listeners, err :=  activation.Listeners()
+		listeners, err := activation.Listeners()
 		if err == nil && len(listeners) == 1 {
 			e.HidePort = true
 			log.Println("Using systemd HTTP listener")

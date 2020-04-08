@@ -1,6 +1,4 @@
-image: registry.clarisys.fr/adm/sintls:latest
-before_script:
-  - sudo apt-get -qy update && sudo apt-get -qy install dh-golang golang-1.13 golang-go
+image: zehome/sintls:latest
 
 binary:
   script:

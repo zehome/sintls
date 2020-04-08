@@ -1,5 +1,5 @@
 Source: sintls
-Maintainer: Laurent Coustet <laurent.coustet@clarisys.fr>
+Maintainer: Laurent Coustet <ed@zehome.com>
 Section: admin
 Priority: optional
 Build-Depends: debhelper (>= 11~),

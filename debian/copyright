@@ -9,6 +9,7 @@ License: BSD-2-clause
 Files: cmd/*
 Copyright: 2015-2017 Sebastian Erhart
            2019 Laurent Coustet <laurent.coustet@clarisys.fr>
+           2020 Laurent Coustet <ed@zehome.com>
 License: Expat
 
 Files: debian/*

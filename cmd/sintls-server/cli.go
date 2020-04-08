@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/cheynewallace/tabby"
-	"github.com/go-pg/pg"
+	"github.com/go-pg/pg/v9"
 	"github.com/logrusorgru/aurora"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -149,9 +149,9 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 				"host.updated_at",
 				"host.dns_target_a",
 				"host.dns_target_aaaa",
-				"host.dns_target_cname",
-				"SubDomain",
-				"SubDomain.Authorization").
+				"host.dns_target_cname").
+				Relation("SubDomain").
+				Relation("SubDomain.Authorization").
 				Order("sub_domain__authorization.name ASC").
 				Order("sub_domain.name ASC").
 				Order("host.name ASC").
@@ -173,7 +173,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 					row.DnsTargetAAAA,
 					row.DnsTargetCNAME,
 					row.UpdatedAt.Format("2006-01-02 15:04:05"),
-					fmt.Sprintf("%d days", expires / (24 * time.Hour)),
+					fmt.Sprintf("%d days", expires/(24*time.Hour)),
 				)
 			}
 			fmt.Println(au.Red("Following hosts will be removed").Bold())
@@ -219,8 +219,11 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			var subdomains []sintls.SubDomain
 			err := db.Model(&subdomains).Column(
 				"sub_domain.name",
-				"sub_domain.updated_at",
-				"Authorization").Order("authorization.name ASC").Order("sub_domain.name ASC").Select()
+				"sub_domain.updated_at").
+				Relation("Authorization").
+				Order("authorization.name ASC").
+				Order("sub_domain.name ASC").
+				Select()
 			if err != nil {
 				log.Println(err)
 				return
@@ -244,12 +247,13 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 				"host.updated_at",
 				"host.dns_target_a",
 				"host.dns_target_aaaa",
-				"host.dns_target_cname",
-				"SubDomain",
-				"SubDomain.Authorization").
+				"host.dns_target_cname").
+				Relation("SubDomain").
+				Relation("SubDomain.Authorization").
 				Order("sub_domain__authorization.name ASC").
 				Order("sub_domain.name ASC").
-				Order("host.name ASC").Select()
+				Order("host.name ASC").
+				Select()
 			if err != nil {
 				log.Println(err)
 				return
@@ -266,7 +270,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 					row.DnsTargetAAAA,
 					row.DnsTargetCNAME,
 					row.UpdatedAt.Format("2006-01-02 15:04:05"),
-					fmt.Sprintf("%d days", expires / (24 * time.Hour)),
+					fmt.Sprintf("%d days", expires/(24*time.Hour)),
 				)
 			}
 			fmt.Println("Hosts:")
@@ -279,12 +283,13 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			"host.updated_at",
 			"host.dns_target_a",
 			"host.dns_target_aaaa",
-			"host.dns_target_cname",
-			"SubDomain",
-			"SubDomain.Authorization").
+			"host.dns_target_cname").
+			Relation("SubDomain").
+			Relation("SubDomain.Authorization").
 			Order("sub_domain__authorization.name ASC").
 			Order("sub_domain.name ASC").
-			Order("host.name ASC").Select()
+			Order("host.name ASC").
+			Select()
 		if err != nil {
 			log.Println(err)
 			return
@@ -309,7 +314,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			fmt.Printf(
 				"sintls,%s expire_days=%di %d\n",
 				strings.Join(tags, ","),
-				int(expires.Hours() / 24),
+				int(expires.Hours()/24),
 				time.Now().UnixNano(),
 			)
 		}
