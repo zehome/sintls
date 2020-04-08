@@ -14,18 +14,4 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     sudo
 
 RUN apt-get clean
-
-RUN useradd -m -s /bin/bash -d /ci -G sudo ci && \
-    echo "ci ALL=(root) NOPASSWD: ALL" > /etc/sudoers.d/ci && \
-    chmod 440 /etc/sudoers.d/ci && \
-    mkdir -p /ci/.pip /ci/.ssh
-RUN mkdir -p /ci/.ssh && \
-    echo 'StrictHostKeyChecking no' >> /ci/.ssh/config && \
-    mkdir -p /ci/.pip
-
-RUN chown ci:ci -R /ci
-
-USER ci
-WORKDIR /ci
 CMD ["/bin/bash"]
-
