@@ -1,6 +1,8 @@
 Simple INternal TLS
 ===================
 
+[![Build Status](https://travis-ci.org/zehome/sintls.svg?branch=master)](https://travis-ci.org/zehome/sintls)
+
 This projects has a goal to provide let's encrypt x509 certificates to
 hosts not reachable from the internet, with limited internet access.
 
