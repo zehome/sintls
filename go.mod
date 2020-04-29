@@ -11,12 +11,12 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cheynewallace/tabby v1.1.0
 	github.com/cloudflare/cloudflare-go v0.10.8 // indirect
-	github.com/coreos/go-systemd v0.0.0-20181012123002-c6f51f82210d
+	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/exoscale/egoscale v1.19.0 // indirect
-	github.com/go-acme/lego/v3 v3.5.0
-	github.com/go-pg/migrations/v7 v7.1.9
-	github.com/go-pg/pg/v9 v9.1.5
+	github.com/go-acme/lego/v3 v3.6.0
+	github.com/go-pg/migrations/v7 v7.1.10
+	github.com/go-pg/pg/v9 v9.1.6
 	github.com/gophercloud/gophercloud v0.7.0 // indirect
 	github.com/hashicorp/go-hclog v0.10.0 // indirect
 	github.com/hashicorp/go-retryablehttp v0.6.4 // indirect
@@ -26,20 +26,20 @@ require (
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/linode/linodego v0.12.2 // indirect
 	github.com/liquidweb/liquidweb-go v1.6.1 // indirect
-	github.com/logrusorgru/aurora v0.0.0-20191116043053-66b7ad493a23
-	github.com/miekg/dns v1.1.27
+	github.com/logrusorgru/aurora v0.0.0-20200102142835-e9ef32dff381
+	github.com/miekg/dns v1.1.29
 	github.com/oracle/oci-go-sdk v13.0.0+incompatible // indirect
 	github.com/ovh/go-ovh v0.0.0-20181109152953-ba5adb4cf014
-	github.com/rhysd/go-github-selfupdate v1.2.1
+	github.com/rhysd/go-github-selfupdate v1.2.2
 	github.com/sacloud/libsacloud v1.32.0 // indirect
 	github.com/transip/gotransip v5.8.2+incompatible // indirect
 	github.com/ulikunitz/xz v0.5.6 // indirect
-	github.com/urfave/cli v1.22.2
+	github.com/urfave/cli v1.22.4
 	github.com/vultr/govultr v0.1.7 // indirect
 	go.uber.org/ratelimit v0.1.0 // indirect
-	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
-	gopkg.in/AlecAivazis/survey.v1 v1.8.7
+	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc
+	golang.org/x/net v0.0.0-20200425230154-ff2c4b7c35a0
+	gopkg.in/AlecAivazis/survey.v1 v1.8.8
 	gopkg.in/ns1/ns1-go.v2 v2.0.0-20191126161805-25b9eac84517 // indirect
 	gopkg.in/square/go-jose.v2 v2.4.0 // indirect
 )
