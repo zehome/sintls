@@ -120,6 +120,7 @@ func (d *DNSProvider) SetRecord(fqdn, fieldtype, target string) error {
 		"A":     true,
 		"AAAA":  true,
 		"CNAME": true,
+		"MX":	 true,
 	}
 	if !allowedFieldTypes[fieldtype] {
 		return fmt.Errorf("rfc2136: fieldtype %s not supported.", fieldtype)
@@ -138,7 +139,7 @@ func (d *DNSProvider) Refresh(fqdn string) error {
 }
 
 func (d *DNSProvider) RemoveRecords(fqdn string) error {
-	for _, fieldtype := range []string{"A", "AAAA", "CNAME"} {
+	for _, fieldtype := range []string{"A", "AAAA", "CNAME", "MX"} {
 		_ = d.changeRecord("REMOVE", fieldtype, fmt.Sprintf("%s.", fqdn), "", d.config.TTL)
 	}
 	return nil
@@ -168,6 +169,12 @@ func (d *DNSProvider) changeRecord(action, fieldtype string, fqdn, target string
 		rr := new(dns.CNAME)
 		rr.Hdr = dns.RR_Header{Name: fqdn, Rrtype: dns.TypeCNAME, Class: dns.ClassINET, Ttl: uint32(ttl)}
 		rr.Target = target
+		rrs = append(rrs, rr)
+	case "MX":
+		rr := new(dns.MX)
+		rr.Hdr = dns.RR_Header{Name: fqdn, Rrtype: dns.TypeMX, Class: dns.ClassINET, Ttl: uint32(ttl)}
+		rr.Preference = 10
+		rr.Mx = target
 		rrs = append(rrs, rr)
 	default:
 		return fmt.Errorf("rfc2136: unsupported field type %s", fieldtype)

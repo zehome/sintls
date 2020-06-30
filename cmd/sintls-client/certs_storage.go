@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/x509"
 	"encoding/json"
 	"io/ioutil"
@@ -39,6 +40,7 @@ const (
 type CertificatesStorage struct {
 	rootPath    string
 	archivePath string
+	pem         bool
 }
 
 // NewCertificatesStorage create a new certificates storage.
@@ -46,6 +48,7 @@ func NewCertificatesStorage(ctx *cli.Context) *CertificatesStorage {
 	return &CertificatesStorage{
 		rootPath:    filepath.Join(ctx.GlobalString("path"), baseCertificatesFolderName),
 		archivePath: filepath.Join(ctx.GlobalString("path"), baseArchivesFolderName),
+		pem:         ctx.GlobalBool("pem"),
 	}
 }
 
@@ -90,6 +93,16 @@ func (s *CertificatesStorage) SaveResource(certRes *certificate.Resource) {
 		if err != nil {
 			log.Fatalf("Unable to save PrivateKey for domain %s\n\t%v", domain, err)
 		}
+
+		if s.pem {
+			err = s.WriteFile(domain, ".pem", bytes.Join([][]byte{certRes.Certificate, certRes.PrivateKey}, nil))
+			if err != nil {
+				log.Fatalf("Unable to save Certificate and PrivateKey in .pem for domain %s\n\t%v", domain, err)
+			}
+		}
+	} else if s.pem {
+		// we don't have the private key; can't write the .pem file
+		log.Fatalf("Unable to save pem without private key for domain %s\n\t%v; are you using a CSR?", domain, err)
 	}
 
 	jsonBytes, err := json.MarshalIndent(certRes, "", "\t")

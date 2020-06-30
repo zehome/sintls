@@ -29,6 +29,10 @@ func CreateFlags(defaultPath string) []cli.Flag {
 			Usage: "DNS Target (CNAME Entry)",
 		},
 		cli.StringFlag{
+			Name:  "target-mx",
+			Usage: "DNS Target (MX Entry)",
+		},
+		cli.StringFlag{
 			Name:  "ca-server",
 			Usage: "CA hostname (and optionally :port).",
 			Value: lego.LEDirectoryProduction,
@@ -50,6 +54,10 @@ func CreateFlags(defaultPath string) []cli.Flag {
 			Name:  "path",
 			Usage: "Directory to use for storing the data.",
 			Value: defaultPath,
+		},
+		cli.BoolFlag{
+			Name:  "pem",
+			Usage: "Generate a .pem file by concatenating the .key and .crt files together.",
 		},
 		cli.IntFlag{
 			Name:  "cert.timeout",
