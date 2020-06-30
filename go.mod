@@ -6,15 +6,13 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.0 // indirect
 	github.com/Azure/go-autorest/autorest/to v0.3.0 // indirect
 	github.com/Azure/go-autorest/autorest/validation v0.2.0 // indirect
-	github.com/aliyun/alibaba-cloud-sdk-go v1.60.282 // indirect
-	github.com/aws/aws-sdk-go v1.25.47 // indirect
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cheynewallace/tabby v1.1.0
 	github.com/cloudflare/cloudflare-go v0.10.8 // indirect
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/exoscale/egoscale v1.19.0 // indirect
-	github.com/go-acme/lego/v3 v3.6.0
+	github.com/go-acme/lego/v3 v3.7.0
 	github.com/go-pg/migrations/v7 v7.1.10
 	github.com/go-pg/pg/v9 v9.1.6
 	github.com/gophercloud/gophercloud v0.7.0 // indirect
@@ -22,7 +20,6 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.6.4 // indirect
 	github.com/json-iterator/go v1.1.8 // indirect
 	github.com/kolo/xmlrpc v0.0.0-20190909154602-56d5ec7c422e // indirect
-	github.com/kr/pty v1.1.3 // indirect
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/linode/linodego v0.12.2 // indirect
 	github.com/liquidweb/liquidweb-go v1.6.1 // indirect
@@ -32,7 +29,6 @@ require (
 	github.com/ovh/go-ovh v0.0.0-20181109152953-ba5adb4cf014
 	github.com/rhysd/go-github-selfupdate v1.2.2
 	github.com/sacloud/libsacloud v1.32.0 // indirect
-	github.com/transip/gotransip v5.8.2+incompatible // indirect
 	github.com/ulikunitz/xz v0.5.6 // indirect
 	github.com/urfave/cli v1.22.4
 	github.com/vultr/govultr v0.1.7 // indirect
