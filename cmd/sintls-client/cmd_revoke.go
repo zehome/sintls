@@ -32,14 +32,16 @@ func revoke(ctx *cli.Context) error {
 	for _, domain := range ctx.GlobalStringSlice("domains") {
 		log.Printf("Trying to revoke certificate for domain %s", domain)
 
-		certBytes, err := certsStorage.ReadFile(domain, ".crt")
-		if err != nil {
-			log.Fatalf("Error while revoking the certificate for domain %s\n\t%v", domain, err)
-		}
+		if certsStorage.ExistsFile(domain, ".crt") {
+			certBytes, err := certsStorage.ReadFile(domain, ".crt")
+			if err != nil {
+				log.Fatalf("Error while revoking the certificate for domain %s\n\t%v", domain, err)
+			}
 
-		err = client.Certificate.Revoke(certBytes)
-		if err != nil {
-			log.Fatalf("Error while revoking the certificate for domain %s\n\t%v", domain, err)
+			err = client.Certificate.Revoke(certBytes)
+			if err != nil {
+				log.Fatalf("Error while revoking the certificate for domain %s\n\t%v", domain, err)
+			}
 		}
 
 		log.Println("Certificate was revoked.")
@@ -50,7 +52,7 @@ func revoke(ctx *cli.Context) error {
 
 		certsStorage.CreateArchiveFolder()
 
-		err = certsStorage.MoveToArchive(domain)
+		err := certsStorage.MoveToArchive(domain)
 		if err != nil {
 			return err
 		}
