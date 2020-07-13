@@ -27,25 +27,36 @@ func (a Authorization) String() string {
 }
 
 func (a *Authorization) CanUseHost(db *pg.DB, host string) bool {
-	// Get subdomain
-	subdomain := strings.Join(strings.Split(host, ".")[1:], ".")
-	log.Println("host:", host, "subdomain:", subdomain, "a.Name:", a.Name)
-	var subdomains []SubDomain
-	count, err := db.Model(&subdomains).
-		Relation("Authorization").
-		Where(`"authorization".name = ?`, a.Name).
-		Where(`"sub_domain".name = ?`, subdomain).
-		Count()
-	if err != nil {
-		log.Println("Count error:", err)
-		return false
+	// We will try to get down to the root subdomain by splitting and stripping the first part
+	// until we can find a valid subdomain... Or not!
+	namesplit := strings.Split(host, ".")
+	for stripindex := range namesplit {
+		if (stripindex > 5) {
+			log.Println("host:", host, "a.Name:", a.Name, "strip was going too far (>5)")
+			break
+		}
+		subdomain := strings.Join(namesplit[stripindex:], ".")
+		log.Println("host:", host, "subdomain:", subdomain, "a.Name:", a.Name)
+		var subdomains []SubDomain
+		count, err := db.Model(&subdomains).
+			Relation("Authorization").
+			Where(`"authorization".name = ?`, a.Name).
+			Where(`"sub_domain".name = ?`, subdomain).
+			Count()
+		if err != nil {
+			log.Println("Count error:", err)
+			return false
+		}
+		if (count > 0) {
+			return true
+		}
 	}
-	return count > 0
+	return false
 }
 
 func (a *Authorization) CreateOrUpdateHost(
 	db *pg.Tx, fqdn string,
-	target_a, target_aaaa net.IP, target_cname string) error {
+	target_a, target_aaaa net.IP, target_cname string, target_mx string) error {
 	// Find subdomain
 	var subdomain *SubDomain
 	var subdomains []SubDomain
@@ -75,11 +86,13 @@ func (a *Authorization) CreateOrUpdateHost(
 		DnsTargetA:     target_a,
 		DnsTargetAAAA:  target_aaaa,
 		DnsTargetCNAME: target_cname,
+		DnsTargetMX:	target_mx,
 	}
 	qs := db.Model(&host).
 		OnConflict("(name, subdomain_id) DO UPDATE").
 		Set("updated_at = now()").
-		Set("dns_target_cname = ?", target_cname)
+		Set("dns_target_cname = ?", target_cname).
+		Set("dns_target_mx = ?", target_mx)
 	if len(target_a) != 0 {
 		qs = qs.Set("dns_target_a = ?", target_a)
 	} else {
@@ -118,6 +131,7 @@ type Host struct {
 	DnsTargetA     net.IP `pg:"dns_target_a"`
 	DnsTargetAAAA  net.IP `pg:"dns_target_aaaa"`
 	DnsTargetCNAME string `pg:"dns_target_cname"`
+	DnsTargetMX    string `pg:"dns_target_mx"`
 }
 
 type dbLogger struct {

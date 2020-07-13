@@ -19,11 +19,13 @@ type LegoMessage struct {
 	TargetA     net.IP `json:"dnstarget_a,omitempty"`
 	TargetAAAA  net.IP `json:"dnstarget_aaaa,omitempty"`
 	TargetCNAME string `json:"dnstarget_cname,omitempty"`
+	TargetMX    string `json:"dnstarget_mx,omitempty"`
 }
 
 func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdater dns.DNSUpdater) (err error) {
 	err = user.CreateOrUpdateHost(
-		tx, req.Domain, req.TargetA, req.TargetAAAA, req.TargetCNAME)
+		tx, req.Domain, req.TargetA, req.TargetAAAA, req.TargetCNAME,
+		req.TargetMX)
 	if err != nil {
 		tx.Rollback()
 		log.Printf("sintls: update host failed: %s", err)
@@ -49,6 +51,10 @@ func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdate
 	}
 	if len(req.TargetA) != 0 && len(req.TargetAAAA) != 0 && len(req.TargetCNAME) > 0 {
 		err = dnsupdater.SetRecord(req.Domain, "CNAME", req.TargetCNAME)
+		return
+	}
+	if len(req.TargetMX) > 0 {
+		err = dnsupdater.SetRecord(req.Domain, "MX", req.TargetMX)
 		return
 	}
 	dnsupdater.Refresh(req.Domain)

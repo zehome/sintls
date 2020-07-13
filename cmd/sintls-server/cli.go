@@ -149,7 +149,8 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 				"host.updated_at",
 				"host.dns_target_a",
 				"host.dns_target_aaaa",
-				"host.dns_target_cname").
+				"host.dns_target_cname",
+				"host.dns_target_mx").
 				Relation("SubDomain").
 				Relation("SubDomain.Authorization").
 				Order("sub_domain__authorization.name ASC").
@@ -162,7 +163,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 				return
 			}
 			t := tabby.New()
-			t.AddHeader("Username", "SubDomain", "Name", "A", "AAAA", "CNAME", "UpdatedAt", "Expires")
+			t.AddHeader("Username", "SubDomain", "Name", "A", "AAAA", "CNAME", "MX", "UpdatedAt", "Expires")
 			for _, row := range hosts {
 				expires := (time.Hour * 24 * 90) - time.Now().Sub(row.UpdatedAt)
 				t.AddLine(
@@ -172,6 +173,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 					row.DnsTargetA,
 					row.DnsTargetAAAA,
 					row.DnsTargetCNAME,
+					row.DnsTargetMX,
 					row.UpdatedAt.Format("2006-01-02 15:04:05"),
 					fmt.Sprintf("%d days", expires/(24*time.Hour)),
 				)
@@ -247,7 +249,8 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 				"host.updated_at",
 				"host.dns_target_a",
 				"host.dns_target_aaaa",
-				"host.dns_target_cname").
+				"host.dns_target_cname",
+				"host.dns_target_mx").
 				Relation("SubDomain").
 				Relation("SubDomain.Authorization").
 				Order("sub_domain__authorization.name ASC").
@@ -259,7 +262,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 				return
 			}
 			t := tabby.New()
-			t.AddHeader("Username", "SubDomain", "Name", "A", "AAAA", "CNAME", "UpdatedAt", "Expires")
+			t.AddHeader("Username", "SubDomain", "Name", "A", "AAAA", "CNAME", "MX", "UpdatedAt", "Expires")
 			for _, row := range hosts {
 				expires := (time.Hour * 24 * 90) - time.Now().Sub(row.UpdatedAt)
 				t.AddLine(
@@ -269,6 +272,7 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 					row.DnsTargetA,
 					row.DnsTargetAAAA,
 					row.DnsTargetCNAME,
+					row.DnsTargetMX,
 					row.UpdatedAt.Format("2006-01-02 15:04:05"),
 					fmt.Sprintf("%d days", expires/(24*time.Hour)),
 				)
@@ -283,7 +287,8 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			"host.updated_at",
 			"host.dns_target_a",
 			"host.dns_target_aaaa",
-			"host.dns_target_cname").
+			"host.dns_target_cname",
+			"host.dns_target_mx").
 			Relation("SubDomain").
 			Relation("SubDomain.Authorization").
 			Order("sub_domain__authorization.name ASC").
@@ -310,6 +315,9 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			}
 			if len(host.DnsTargetCNAME) > 0 {
 				tags = append(tags, fmt.Sprintf("target_cname=%s", host.DnsTargetCNAME))
+			}
+			if len(host.DnsTargetMX) > 0 {
+				tags = append(tags, fmt.Sprintf("target_mx=%s", host.DnsTargetMX))
 			}
 			fmt.Printf(
 				"sintls,%s expire_days=%di %d\n",

@@ -27,6 +27,7 @@ type message struct {
 	TargetA     string `json:"dnstarget_a"`
 	TargetAAAA  string `json:"dnstarget_aaaa"`
 	TargetCNAME string `json:"dnstarget_cname"`
+	TargetMX    string `json:"dnstarget_mx"`
 }
 
 // Config is used to configure the creation of the Provider
@@ -37,6 +38,7 @@ type Config struct {
 	TargetA            string
 	TargetAAAA         string
 	TargetCNAME        string
+	TargetMX           string
 	PropagationTimeout time.Duration
 	PollingInterval    time.Duration
 	HTTPClient         *http.Client
@@ -67,6 +69,9 @@ func (d *Provider) GetTargetAAAA() string {
 func (d *Provider) GetTargetCNAME() string {
 	return d.config.TargetCNAME
 }
+func (d *Provider) GetTargetMX() string {
+	return d.config.TargetMX
+}
 
 // NewProvider returns a Provider instance.
 func NewProvider(ctx *cli.Context) (*Provider, error) {
@@ -80,6 +85,7 @@ func NewProvider(ctx *cli.Context) (*Provider, error) {
 	config.TargetA = ctx.GlobalString("target-a")
 	config.TargetAAAA = ctx.GlobalString("target-aaaa")
 	config.TargetCNAME = ctx.GlobalString("target-cname")
+	config.TargetMX = ctx.GlobalString("target-mx")
 	config.Endpoint = endpoint
 	return NewProviderConfig(config)
 }
@@ -112,6 +118,7 @@ func (d *Provider) UpdateDNS(domain string) error {
 		TargetA:     d.GetTargetA(),
 		TargetAAAA:  d.GetTargetAAAA(),
 		TargetCNAME: d.GetTargetCNAME(),
+		TargetMX:    d.GetTargetMX(),
 	}
 	err := d.doPost("/updatedns", msg)
 	if err != nil {
@@ -129,6 +136,7 @@ func (d *Provider) Present(domain, token, keyAuth string) error {
 		TargetA:     d.GetTargetA(),
 		TargetAAAA:  d.GetTargetAAAA(),
 		TargetCNAME: d.GetTargetCNAME(),
+		TargetMX: 	 d.GetTargetMX(),
 	}
 	err := d.doPost("/present", msg)
 	if err != nil {
@@ -146,6 +154,7 @@ func (d *Provider) CleanUp(domain, token, keyAuth string) error {
 		TargetA:     d.GetTargetA(),
 		TargetAAAA:  d.GetTargetAAAA(),
 		TargetCNAME: d.GetTargetCNAME(),
+		TargetMX:    d.GetTargetMX(),
 	}
 	err := d.doPost("/cleanup", msg)
 	if err != nil {
