@@ -32,7 +32,9 @@ func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdate
 		return
 	}
 	// Remove previous entries
-	dnsupdater.RemoveRecords(req.Domain)
+	if err = dnsupdater.RemoveRecords(req.Domain); err != nil {
+		log.Printf("sintls: remove records failed: %s", err)
+	}
 
 	// Update DNS records
 	if len(req.TargetA) != 0 {

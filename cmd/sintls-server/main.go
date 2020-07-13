@@ -19,6 +19,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 )
 
 import (
@@ -101,6 +102,7 @@ func main() {
 	debug := flag.Bool("debug", false, "enable debug mode")
 	initdb := flag.Bool("initdb", false, "initialize database")
 	disable_colors := flag.Bool("disable-colors", false, "disable colors")
+	disable_autocleanup := flag.Bool("disable-autocleanup", false, "disable automatic DNS cleanup")
 	flag.Parse()
 	log.SetOutput(os.Stdout)
 
@@ -198,6 +200,11 @@ func main() {
 	// Ok, now we log everything using syslog
 	if !*debug {
 		log.SetOutput(logwriter)
+	}
+
+	// Background revoke worker
+	if ! *disable_autocleanup {
+		go autocleanup(db, dnsupdater, time.Hour * 6)
 	}
 
 	if *autotls {

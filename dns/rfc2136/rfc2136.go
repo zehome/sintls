@@ -139,10 +139,22 @@ func (d *DNSProvider) Refresh(fqdn string) error {
 }
 
 func (d *DNSProvider) RemoveRecords(fqdn string) error {
+	var errors []error
 	for _, fieldtype := range []string{"A", "AAAA", "CNAME", "MX"} {
-		_ = d.changeRecord("REMOVE", fieldtype, fmt.Sprintf("%s.", fqdn), "", d.config.TTL)
+		err := d.changeRecord("REMOVE", fieldtype, fmt.Sprintf("%s.", fqdn), "", d.config.TTL)
+		if err != nil {
+			errors = append(errors, err)
+		}
 	}
-	return nil
+	if len(errors) > 0 {
+		var errstrs []string
+		for _, e := range errors {
+			errstrs = append(errstrs, e.Error())
+		}
+		return fmt.Errorf(strings.Join(errstrs, "\n"))
+	} else {
+		return nil
+	}
 }
 
 func (d *DNSProvider) changeRecord(action, fieldtype string, fqdn, target string, ttl int) error {
