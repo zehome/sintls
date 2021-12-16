@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/go-acme/lego/v3/lego"
-	"github.com/go-acme/lego/v3/log"
+	"github.com/go-acme/lego/v4/lego"
+	"github.com/go-acme/lego/v4/log"
 	"github.com/urfave/cli"
 	"github.com/zehome/sintls/provider"
 )

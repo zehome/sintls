@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/cheynewallace/tabby"
-	"github.com/go-pg/pg/v9"
-	"github.com/logrusorgru/aurora"
+	"github.com/go-pg/pg/v10"
+	"github.com/logrusorgru/aurora/v3"
 	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/AlecAivazis/survey.v1"
+	"github.com/AlecAivazis/survey/v2"
 	"log"
 	"strconv"
 	"strings"
@@ -100,10 +100,10 @@ func RunCLI(db *pg.DB, disable_colors bool, args []string) {
 			log.Println("INSERT authorization failed: ", err)
 			return
 		}
-		err = db.Insert(&sintls.SubDomain{
+		_, err = db.Model(&sintls.SubDomain{
 			Name:            adduser_anwsers.Subdomain,
 			AuthorizationId: authorization.AuthorizationId,
-		})
+		}).Insert()
 		if err != nil {
 			log.Println("INSERT SubDomain failed: ", err)
 			return

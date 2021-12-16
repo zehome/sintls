@@ -3,7 +3,7 @@ package sintls
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/go-pg/pg/v9"
+	"github.com/go-pg/pg/v10"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"

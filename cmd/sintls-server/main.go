@@ -4,9 +4,9 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"github.com/coreos/go-systemd/activation"
-	"github.com/go-acme/lego/v3/providers/dns"
-	"github.com/go-pg/pg/v9"
+	"github.com/coreos/go-systemd/v22/activation"
+	"github.com/go-acme/lego/v4/providers/dns"
+	"github.com/go-pg/pg/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"golang.org/x/crypto/acme"
@@ -235,7 +235,7 @@ func main() {
 			e.HidePort = true
 			log.Println("Using systemd HTTP listener")
 			e.Listener = listeners[0]
-			*bindaddress = e.TLSListener.Addr().String()
+			*bindaddress = e.Listener.Addr().String()
 		}
 		log.Printf("Listening on %s\n", *bindaddress)
 		e.Logger.Fatal(e.Start(*bindaddress))

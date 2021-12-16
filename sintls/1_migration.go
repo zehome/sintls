@@ -1,7 +1,7 @@
 package sintls
 
 import (
-	"github.com/go-pg/migrations/v7"
+	"github.com/go-pg/migrations/v8"
 )
 
 // This is just to avoid a bug in go-pg/migrations

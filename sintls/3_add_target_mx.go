@@ -1,7 +1,7 @@
 package sintls
 
 import (
-	"github.com/go-pg/migrations/v7"
+	"github.com/go-pg/migrations/v8"
 )
 
 func init() {

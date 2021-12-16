@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/blang/semver"
-	"github.com/go-acme/lego/v3/log"
+	"github.com/blang/semver/v4"
+	"github.com/go-acme/lego/v4/log"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/urfave/cli"
 	"os"
@@ -28,11 +28,16 @@ func doSelfUpdate(ctx *cli.Context) {
 		return
 	}
 
-	if !found || latest.Version.LTE(v) {
+	latestVersion, err := semver.Parse(latest.Version.String())
+	if err != nil {
+		log.Printf("Unable to parse latest version '%s': %s", latest.Version, err)
+		return
+	}
+	if !found || latestVersion.LTE(v) {
 		return
 	}
 	if !ctx.GlobalBool("unattended") {
-		fmt.Print("Do you want to update to v", latest.Version, "? (y/n): ")
+		fmt.Print("Do you want to update to v", latestVersion, "? (y/n): ")
 		input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 		if err != nil || (input != "y\n" && input != "n\n") {
 			return
@@ -51,7 +56,7 @@ func doSelfUpdate(ctx *cli.Context) {
 		log.Println("Error occurred while updating binary:", err)
 		return
 	}
-	log.Println("Successfully updated to version:", latest.Version)
+	log.Println("Successfully updated to version:", latestVersion)
 }
 
 func createUpdate() cli.Command {
