@@ -1,3 +1,8 @@
+sintls (1.4.0-1) unstable; urgency=low
+  * Upgrade go dependencies
+
+ -- Laurent Coustet <ed@zehome.com>, Thu, 16 Dec 2021 15:17:06 +0100
+
 sintls (1.3.2-1) unstable; urgency=medium
   * Add support for MX option
   * Add automatic cleanup of expired DNS entries
@@ -22,7 +27,7 @@ sintls (1.2.3-1) unstable; urgency=medium
   * Use golang 1.13
   * fix getting user information when no user information
     is available.
- 
+
  -- Laurent Coustet <laurent.coustet@clarisys.fr>  Wed, 04 Dec 2019 10:38:42 +0100
 
 sintls (1.2.2-1) unstable; urgency=medium

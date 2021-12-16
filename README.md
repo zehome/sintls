@@ -23,7 +23,7 @@ Server
 
 ```shell
 # Install PostgreSQL database
-apt install postgresql-12
+apt install postgresql-14
 
 # Create postgresql credentials
 sudo -Hu postgres createuser sintls
@@ -33,18 +33,18 @@ sudo -Hu postgres createdb sintls -O sintls
 dpkg -i sintls-server*.deb
 
 # Setup OVH API access credentials
-# This setup is for "clarilab.fr" domain
+# This setup is for "zehome.com" domain
 curl -XPOST https://eu.api.ovh.com/1.0/auth/credential \
   -H"X-Ovh-Application: ***********" \
   -H "Content-type: application/json" \
   -d @- << EOF
 {"accessRules": [
-  {"method": "POST", "path": "/domain/zone/clarilab.fr/record/*"},
-  {"method": "GET", "path": "/domain/zone/clarilab.fr/record/*" },
-  {"method": "DELETE", "path": "/domain/zone/clarilab.fr/record/*"},
-  {"method": "POST", "path": "/domain/zone/clarilab.fr/record"},
-  {"method": "POST", "path": "/domain/zone/clarilab.fr/refresh"},
-  {"method": "GET", "path": "/domain/zone/clarilab.fr/record"}
+  {"method": "POST", "path": "/domain/zone/zehome.com/record/*"},
+  {"method": "GET", "path": "/domain/zone/zehome.com/record/*" },
+  {"method": "DELETE", "path": "/domain/zone/zehome.com/record/*"},
+  {"method": "POST", "path": "/domain/zone/zehome.com/record"},
+  {"method": "POST", "path": "/domain/zone/zehome.com/refresh"},
+  {"method": "GET", "path": "/domain/zone/zehome.com/record"}
 ]}
 EOF
 # Validate the credentials on the web interface as this command tells you

@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM golang:1.17-bullseye
 MAINTAINER Laurent Coustet <ed@zehome.com>
 
 RUN echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/norecommands && \
@@ -8,8 +8,6 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     dh-golang \
     git-buildpackage \
     git-core \
-    golang-1.14 \
-    golang-go \
     ssh \
     sudo
 

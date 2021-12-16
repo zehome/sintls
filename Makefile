@@ -13,7 +13,7 @@ all: client/linux/amd64 server/linux/amd64
 release: $(PLATFORMS)
 
 dockerci:
-	(cd ci; docker build -t zehome/sintls:latest . -f Dockerfile --pull)
+	(cd ci; docker build -t zehome/sintls-build:latest . -f Dockerfile --pull)
 
 version:
 	@echo ${VERSION}
