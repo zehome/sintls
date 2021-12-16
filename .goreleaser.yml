@@ -1,0 +1,73 @@
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - id: "sintls-client"
+    main: ./cmd/sintls-client
+    binary: sintls-client
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+  - id: "sintls-server"
+    main: ./cmd/sintls-server
+    binary: sintls-server
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+archives:
+  - builds: [ sintls-client, sintls-server ]
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+nfpms:
+  - id: "sintls-client"
+    package_name: sintls-client
+    maintainer: Laurent Coustet <ed@zehome.com>
+    license: BSD-2-CLAUSES
+    description: SintTLS client
+    builds: [sintls-client]
+    bindir: /usr/bin
+    formats: [deb, rpm]
+  - id: sintls-server
+    package_name: sintls-server
+    builds: [sintls-server]
+    formats: [deb, rpm]
+    maintainer: Laurent Coustet <ed@zehome.com>
+    license: BSD-2-CLAUSES
+    description: SintTLS server
+    bindir: /usr/bin
+    contents:
+      - type: dir
+        dst: /var/lib/sintls
+      - src: debian/sintls-server.conf
+        dst: /etc/sintls/sintls-server.conf
+        type: config
+      - src: debian/sintls-server.socket
+        dst: /lib/systemd/system/sintls-server.socket
+      - src: debian/sintls-server.service
+        dst: /lib/systemd/system/sintls-server.service
+    scripts:
+      postinstall: debian/sintls-server.postinst
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+release:
+  github:
+    owner: zehome
+    name: sintls
