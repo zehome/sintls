@@ -115,7 +115,7 @@ type SubDomain struct {
 	SubDomainId     uint64    `pg:"subdomain_id,pk"`
 	CreatedAt       time.Time `pg:"created_at,notnull,default:now()"`
 	UpdatedAt       time.Time `pg:"updated_at,notnull,default:now()"`
-	Authorization   *Authorization
+	Authorization   *Authorization `pg:"rel:has-one"`
 	AuthorizationId uint64 `pg:"authorization_id,notnull,on_delete:CASCADE"`
 	Name            string `pg:"name,notnull,unique"`
 }
@@ -125,7 +125,7 @@ type Host struct {
 	HostId         uint64    `pg:"host_id,pk"`
 	CreatedAt      time.Time `pg:"created_at,notnull,default:now()"`
 	UpdatedAt      time.Time `pg:"updated_at,notnull,default:now()"`
-	SubDomain      *SubDomain
+	SubDomain      *SubDomain `pg:"rel:has-one"`
 	SubDomainId    uint64 `pg:"subdomain_id,notnull,on_delete:CASCADE"`
 	Name           string `pg:"name,notnull"`
 	DnsTargetA     net.IP `pg:"dns_target_a"`
