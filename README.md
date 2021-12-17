@@ -1,8 +1,4 @@
-Simple INternal TLS
-===================
-
-[![Build Status](https://travis-ci.org/zehome/sintls.svg?branch=master)](https://travis-ci.org/zehome/sintls)
-
+### Simple INternal TLS
 This projects has a goal to provide let's encrypt x509 certificates to
 hosts not reachable from the internet, with limited internet access.
 
@@ -15,11 +11,9 @@ Supported DNS providers:
   - rfc2136
   - ovh
 
-Quickstart
-==========
+# Quickstart
 
-Server
-------
+## Server
 
 ```shell
 # Install PostgreSQL database
@@ -31,6 +25,17 @@ sudo -Hu postgres createdb sintls -O sintls
 
 # Install sintls-server
 dpkg -i sintls-server*.deb
+```
+
+### RFC 2136 (bind RNDC)
+On the bind server
+```shell
+rndc-confgen -b 256 -k sintls
+# Then adapt your bind configuration and reload bind9 service
+```
+On the SinTLS server, adjust /etc/sintls/sintls-server.conf. All paramters must match (including the key-name)
+
+### OVH DNS provider
 
 # Setup OVH API access credentials
 # This setup is for "zehome.com" domain
@@ -48,13 +53,17 @@ curl -XPOST https://eu.api.ovh.com/1.0/auth/credential \
 ]}
 EOF
 # Validate the credentials on the web interface as this command tells you
-
 # Copy your API informations to /etc/sintls/sintls-server.conf
 
-# Start sintls socket listener using SystemD
-systemctl enable sintls-server.socket
 
-# Create a new user
+## Run SinTLS server
+Start sintls socket listener using SystemD
+```
+systemctl enable sintls-server.socket
+```
+
+## Create a new user
+```
 sudo -Hu sintls sintls-server adduser
 ```
 
@@ -64,8 +73,7 @@ If SINTLS_ENABLETLS is set in /etc/sintls/sintls-server.conf, then golang's
 acme/autocert is used to retrieve a valid TLS certificate on first request.
 
 
-Client
-------
+# Client
 
 ```shell
 dpkg -i sintls-client*.deb
@@ -81,8 +89,7 @@ SINTLS_USERNAME=**** SINTLS_PASSWORD=**** sintls-client --email xxx@xxx.fr -d **
 ```
 
 
-Overview
-========
+# Overview
 
 ```text
 
