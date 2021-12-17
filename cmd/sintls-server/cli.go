@@ -3,11 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/cheynewallace/tabby"
 	"github.com/go-pg/pg/v10"
 	"github.com/logrusorgru/aurora/v3"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/AlecAivazis/survey/v2"
 	"log"
 	"strconv"
 	"strings"

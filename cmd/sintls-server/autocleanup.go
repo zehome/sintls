@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/go-pg/pg/v10"
 	"log"
 	"time"
-	"github.com/go-pg/pg/v10"
 )
 
 import "github.com/zehome/sintls/sintls"
@@ -11,6 +11,7 @@ import "github.com/zehome/sintls/dns"
 
 // in days
 const CLEANUP_TIMEOUT = 5
+
 // in days (after which we remove from the database, even if we can't remove from DNS)
 const CLEANUP_FORCETIMEOUT = 10
 
@@ -33,7 +34,7 @@ func autocleanup(db *pg.DB, dnsupdater dns.DNSUpdater, sleeptime time.Duration) 
 			if err != nil {
 				log.Printf("Autocleanup %s: unable to remove records: %v", host.Name, err)
 			}
-			if (err == nil || time.Now().Sub(host.UpdatedAt) > (time.Hour * 24 * (90 + CLEANUP_FORCETIMEOUT))) {
+			if err == nil || time.Now().Sub(host.UpdatedAt) > (time.Hour*24*(90+CLEANUP_FORCETIMEOUT)) {
 				_, err := db.Model(&host).WherePK().Delete()
 				if err != nil {
 					log.Println(err)

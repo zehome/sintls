@@ -2,13 +2,14 @@ package sintls
 
 import (
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-pg/pg/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/zehome/sintls/dns"
-	"log"
-	"net"
-	"net/http"
 )
 
 // Lego httpreq RAW request
@@ -28,26 +29,26 @@ func updateDNSRecords(tx *pg.Tx, req LegoMessage, user *Authorization, dnsupdate
 		req.TargetMX)
 	if err != nil {
 		tx.Rollback()
-		log.Printf("sintls: update host failed: %s", err)
+		log.Printf("sintls: update host failed: %s\n", err)
 		return
 	}
 	// Remove previous entries
 	if err = dnsupdater.RemoveRecords(req.Domain); err != nil {
-		log.Printf("sintls: remove records failed: %s", err)
+		log.Printf("sintls: remove records failed: %s\n", err)
 	}
 
 	// Update DNS records
 	if len(req.TargetA) != 0 {
 		err = dnsupdater.SetRecord(req.Domain, "A", req.TargetA.String())
 		if err != nil {
-			log.Printf("sintls: setrecord A failed: %s", err)
+			log.Printf("sintls: setrecord A failed: %s\n", err)
 			return
 		}
 	}
 	if len(req.TargetAAAA) != 0 {
 		err = dnsupdater.SetRecord(req.Domain, "AAAA", req.TargetAAAA.String())
 		if err != nil {
-			log.Printf("sintls: setrecord AAAA failed: %s", err)
+			log.Printf("sintls: setrecord AAAA failed: %s\n", err)
 			return
 		}
 	}
@@ -80,7 +81,7 @@ func UpdateDNSRecords(c echo.Context) error {
 	dnsupdater := c.Get("dnsupdater").(dns.DNSUpdater)
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("sintls: db.Begin() failed", err)
+		log.Printf("sintls: db.Begin() failed: %s\n", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "begin failed")
 	}
 
@@ -90,7 +91,7 @@ func UpdateDNSRecords(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "update dnsrecords failed")
 	}
 	if err := tx.Commit(); err != nil {
-		log.Printf("sintls: tx.Commit() failed:", err)
+		log.Printf("sintls: tx.Commit() failed: %s\n", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "commit failed")
 	} else {
 		return c.String(http.StatusOK, "success")
@@ -121,7 +122,7 @@ func LegoPresent(c echo.Context) error {
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("sintls: db.Begin() failed:", err)
+		log.Printf("sintls: db.Begin() failed: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "begin failed")
 	}
 
@@ -140,7 +141,7 @@ func LegoPresent(c echo.Context) error {
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("sintls: tx.Commit() failed: ", err)
+		log.Printf("sintls: tx.Commit() failed: %s", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "commit failed")
 	} else {
 		return c.String(http.StatusOK, "success")

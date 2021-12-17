@@ -40,9 +40,9 @@ func createRun() cli.Command {
 }
 
 func run(ctx *cli.Context) error {
-	if (len(ctx.GlobalString("target-a")) == 0 &&
+	if len(ctx.GlobalString("target-a")) == 0 &&
 		len(ctx.GlobalString("target-aaaa")) == 0 &&
-		len(ctx.GlobalString("target-cname")) == 0) {
+		len(ctx.GlobalString("target-cname")) == 0 {
 		return fmt.Errorf("sintls: either --target-a, --target-aaaa or --target-cname is required")
 	}
 	accountsStorage := NewAccountsStorage(ctx)

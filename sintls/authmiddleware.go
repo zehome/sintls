@@ -1,12 +1,13 @@
 package sintls
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"github.com/go-pg/pg/v10"
-	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
+
+	"github.com/go-pg/pg/v10"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // "user" will be set on the gin context

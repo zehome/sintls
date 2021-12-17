@@ -4,13 +4,6 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"github.com/coreos/go-systemd/v22/activation"
-	"github.com/go-acme/lego/v4/providers/dns"
-	"github.com/go-pg/pg/v10"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"golang.org/x/crypto/acme"
-	"golang.org/x/crypto/acme/autocert"
 	"io"
 	"log"
 	"log/syslog"
@@ -20,9 +13,15 @@ import (
 	"strconv"
 	"strings"
 	"time"
-)
 
-import (
+	"github.com/coreos/go-systemd/v22/activation"
+	"github.com/go-acme/lego/v4/providers/dns"
+	"github.com/go-pg/pg/v10"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/crypto/acme"
+	"golang.org/x/crypto/acme/autocert"
+
 	sintls_dns "github.com/zehome/sintls/dns"
 	"github.com/zehome/sintls/sintls"
 )
@@ -43,7 +42,7 @@ func GetBooleanDefaultEnv(variable string, defaultvalue bool) bool {
 	} else {
 		v, err := strconv.ParseBool(value)
 		if err != nil {
-			log.Fatal("invalid %s: %s", variable, err)
+			log.Fatalf("invalid %s: %s\n", variable, err)
 		}
 		return v
 	}
@@ -56,7 +55,7 @@ func GetIntDefaultEnv(variable string, defaultvalue int) int {
 	} else {
 		v, err := strconv.Atoi(value)
 		if err != nil {
-			log.Fatal("invalid %s: %s", variable, err)
+			log.Fatalf("invalid %s: %s\n", variable, err)
 		}
 		return v
 	}
@@ -129,7 +128,7 @@ func main() {
 		true,
 	)
 	if err != nil {
-		log.Fatal("OpenDB failed: ", err)
+		log.Fatalf("OpenDB failed: %s\n", err)
 		return
 	}
 
@@ -149,7 +148,7 @@ func main() {
 	log.SetOutput(io.MultiWriter(os.Stdout, logwriter))
 
 	if err != nil {
-		log.Fatal("Unable to open database: ", err)
+		log.Fatalf("Unable to open database: %s\n", err)
 	}
 	defer db.Close()
 	if *initdb == true {
@@ -159,11 +158,11 @@ func main() {
 	// get lego acme provider
 	provider, err := dns.NewDNSChallengeProviderByName(*providername)
 	if err != nil {
-		log.Fatal("invalid lego provider: ", err)
+		log.Fatalf("invalid lego provider: %s\n", err)
 	}
 	dnsupdater, err := sintls_dns.NewDNSUpdaterByName(*providername)
 	if err != nil {
-		log.Fatal("invalid dns updater: ", err)
+		log.Fatalf("invalid dns updater: %s\n", err)
 	}
 
 	e := echo.New()
@@ -203,8 +202,8 @@ func main() {
 	}
 
 	// Background revoke worker
-	if ! *disable_autocleanup {
-		go autocleanup(db, dnsupdater, time.Hour * 6)
+	if !*disable_autocleanup {
+		go autocleanup(db, dnsupdater, time.Hour*6)
 	}
 
 	if *autotls {

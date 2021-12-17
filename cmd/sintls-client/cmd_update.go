@@ -64,7 +64,7 @@ func createUpdate() cli.Command {
 		Name:   "update",
 		Usage:  "Update on github",
 		Action: doSelfUpdate,
-		Flags:	[]cli.Flag{
+		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "unattended",
 				Usage: "Do unattended upgrade, without asking",

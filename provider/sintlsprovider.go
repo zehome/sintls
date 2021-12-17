@@ -136,7 +136,7 @@ func (d *Provider) Present(domain, token, keyAuth string) error {
 		TargetA:     d.GetTargetA(),
 		TargetAAAA:  d.GetTargetAAAA(),
 		TargetCNAME: d.GetTargetCNAME(),
-		TargetMX: 	 d.GetTargetMX(),
+		TargetMX:    d.GetTargetMX(),
 	}
 	err := d.doPost("/present", msg)
 	if err != nil {

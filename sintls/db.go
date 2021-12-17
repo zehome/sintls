@@ -4,12 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/go-pg/migrations/v8"
-	"github.com/go-pg/pg/v10"
 	"log"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/go-pg/migrations/v8"
+	"github.com/go-pg/pg/v10"
 )
 
 type Authorization struct {
@@ -31,7 +32,7 @@ func (a *Authorization) CanUseHost(db *pg.DB, host string) bool {
 	// until we can find a valid subdomain... Or not!
 	namesplit := strings.Split(host, ".")
 	for stripindex := range namesplit {
-		if (stripindex > 5) {
+		if stripindex > 5 {
 			log.Println("host:", host, "a.Name:", a.Name, "strip was going too far (>5)")
 			break
 		}
@@ -47,7 +48,7 @@ func (a *Authorization) CanUseHost(db *pg.DB, host string) bool {
 			log.Println("Count error:", err)
 			return false
 		}
-		if (count > 0) {
+		if count > 0 {
 			return true
 		}
 	}
@@ -86,7 +87,7 @@ func (a *Authorization) CreateOrUpdateHost(
 		DnsTargetA:     target_a,
 		DnsTargetAAAA:  target_aaaa,
 		DnsTargetCNAME: target_cname,
-		DnsTargetMX:	target_mx,
+		DnsTargetMX:    target_mx,
 	}
 	qs := db.Model(&host).
 		OnConflict("(name, subdomain_id) DO UPDATE").
@@ -111,27 +112,27 @@ func (a *Authorization) CreateOrUpdateHost(
 }
 
 type SubDomain struct {
-	tableName       struct{}  `pg:"sintls_subdomain"`
-	SubDomainId     uint64    `pg:"subdomain_id,pk"`
-	CreatedAt       time.Time `pg:"created_at,notnull,default:now()"`
-	UpdatedAt       time.Time `pg:"updated_at,notnull,default:now()"`
+	tableName       struct{}       `pg:"sintls_subdomain"`
+	SubDomainId     uint64         `pg:"subdomain_id,pk"`
+	CreatedAt       time.Time      `pg:"created_at,notnull,default:now()"`
+	UpdatedAt       time.Time      `pg:"updated_at,notnull,default:now()"`
 	Authorization   *Authorization `pg:"rel:has-one"`
-	AuthorizationId uint64 `pg:"authorization_id,notnull,on_delete:CASCADE"`
-	Name            string `pg:"name,notnull,unique"`
+	AuthorizationId uint64         `pg:"authorization_id,notnull,on_delete:CASCADE"`
+	Name            string         `pg:"name,notnull,unique"`
 }
 
 type Host struct {
-	tableName      struct{}  `pg:"sintls_host"`
-	HostId         uint64    `pg:"host_id,pk"`
-	CreatedAt      time.Time `pg:"created_at,notnull,default:now()"`
-	UpdatedAt      time.Time `pg:"updated_at,notnull,default:now()"`
+	tableName      struct{}   `pg:"sintls_host"`
+	HostId         uint64     `pg:"host_id,pk"`
+	CreatedAt      time.Time  `pg:"created_at,notnull,default:now()"`
+	UpdatedAt      time.Time  `pg:"updated_at,notnull,default:now()"`
 	SubDomain      *SubDomain `pg:"rel:has-one"`
-	SubDomainId    uint64 `pg:"subdomain_id,notnull,on_delete:CASCADE"`
-	Name           string `pg:"name,notnull"`
-	DnsTargetA     net.IP `pg:"dns_target_a"`
-	DnsTargetAAAA  net.IP `pg:"dns_target_aaaa"`
-	DnsTargetCNAME string `pg:"dns_target_cname"`
-	DnsTargetMX    string `pg:"dns_target_mx"`
+	SubDomainId    uint64     `pg:"subdomain_id,notnull,on_delete:CASCADE"`
+	Name           string     `pg:"name,notnull"`
+	DnsTargetA     net.IP     `pg:"dns_target_a"`
+	DnsTargetAAAA  net.IP     `pg:"dns_target_aaaa"`
+	DnsTargetCNAME string     `pg:"dns_target_cname"`
+	DnsTargetMX    string     `pg:"dns_target_mx"`
 }
 
 type dbLogger struct {
