@@ -36,9 +36,8 @@ rndc-confgen -b 256 -k sintls
 On the SinTLS server, adjust /etc/sintls/sintls-server.conf. All paramters must match (including the key-name)
 
 ### OVH DNS provider
-
-# Setup OVH API access credentials
-# This setup is for "zehome.com" domain
+Setup OVH API access credentials, This setup is for "zehome.com" domain
+```
 curl -XPOST https://eu.api.ovh.com/1.0/auth/credential \
   -H"X-Ovh-Application: ***********" \
   -H "Content-type: application/json" \
@@ -52,8 +51,10 @@ curl -XPOST https://eu.api.ovh.com/1.0/auth/credential \
   {"method": "GET", "path": "/domain/zone/zehome.com/record"}
 ]}
 EOF
-# Validate the credentials on the web interface as this command tells you
-# Copy your API informations to /etc/sintls/sintls-server.conf
+```
+Validate the credentials on the web interface as this command tells you.
+
+Copy your API informations to /etc/sintls/sintls-server.conf
 
 
 ## Run SinTLS server
