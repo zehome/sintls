@@ -15,11 +15,12 @@ const AuthUserKey = "user"
 func BasicAuth(db *pg.DB, isadmin bool) middleware.BasicAuthValidator {
 	return func(username, password string, c echo.Context) (bool, error) {
 		var dbauth Authorization
-		err := db.Model(&dbauth).
-			Where("name = ?", username).
-			Where("admin is ?", isadmin).
-			Limit(1).
-			Select()
+		q := db.Model(&dbauth).
+			Where("name = ?", username)
+		if isadmin {
+			q = q.Where("admin is ?", isadmin)
+		}
+		err := q.Limit(1).Select()
 		if err != nil {
 			return false, echo.NewHTTPError(http.StatusUnauthorized, "incorrect user or password")
 		} else {
