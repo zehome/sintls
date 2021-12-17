@@ -20,12 +20,23 @@ builds:
       - darwin
 archives:
   - builds: [ sintls-client, sintls-server ]
+    wrap_in_directory: true
     replacements:
       darwin: Darwin
       linux: Linux
       windows: Windows
       386: i386
       amd64: x86_64
+  - builds: [ sintls-client, sintls-server ]
+    id: binary-only
+    format: binary
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+
 nfpms:
   - id: "sintls-client"
     package_name: sintls-client
