@@ -4,13 +4,14 @@ import (
 	"crypto"
 	"crypto/x509"
 	"fmt"
+	"time"
+
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/log"
 	"github.com/urfave/cli"
-	"github.com/zehome/sintls/provider"
-	"time"
+	sintlsprovider "github.com/zehome/sintls/provider"
 )
 
 func createRenew() cli.Command {
@@ -89,9 +90,11 @@ func renewForDomains(ctx *cli.Context, client *lego.Client, certsStorage *Certif
 			log.Fatalf("sintlsprovider: %s", err)
 		}
 		log.Printf("Updating DNS target records")
-		err = provider.UpdateDNS(domain)
-		if err != nil {
-			log.Fatalf("sintlsprovider: update dns target failed: %s", err)
+		for _, dnsdomain := range domains {
+			err = provider.UpdateDNS(dnsdomain)
+			if err != nil {
+				log.Fatalf("sintlsprovider: update dns target failed: %s", err)
+			}
 		}
 		return nil
 	}
